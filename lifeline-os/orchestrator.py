@@ -17,9 +17,22 @@ sys.path.insert(0, ROOT)
 
 MODULES_DIR = os.path.join(ROOT, "modules")
 
+# 接口契约：一个合规模块必须实现的 6 个方法（详见 docs/module-interface-v1.md）
+REQUIRED_METHODS = ["name", "provides", "assess_needs", "schedule", "provide", "status"]
+
+
+def _conforms(klass):
+    """校验类是否实现了全部必需方法（且为可调用）。"""
+    missing = [m for m in REQUIRED_METHODS if not callable(getattr(klass, m, None))]
+    return missing
+
 
 def discover_modules():
-    """扫描 modules/ 下所有 <id>/<id>_module.py，返回 [(id, Class), ...]。"""
+    """扫描 modules/ 下所有 <id>/<id>_module.py，返回 [(id, Class), ...]。
+
+    只收录**符合接口契约**的模块；不符合的打印原因并跳过，
+    这样 CI 能拦下破坏契约的提交。
+    """
     found = []
     if not os.path.isdir(MODULES_DIR):
         return found
@@ -44,6 +57,10 @@ def discover_modules():
                 break
         if klass is None:
             print(f"[Lifeline OS] 跳过模块 {entry}: 未找到 {entry.capitalize()}Module 类")
+            continue
+        missing = _conforms(klass)
+        if missing:
+            print(f"[Lifeline OS] 跳过模块 {entry}: 接口契约缺失 {missing}")
             continue
         found.append((entry, klass))
     return found

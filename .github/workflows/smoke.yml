@@ -1,0 +1,20 @@
+name: smoke
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  run-loop:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run Lifeline OS loop (auto-discover + conformance check)
+        run: python lifeline-os/orchestrator.py
