@@ -1,0 +1,6 @@
+id = "food"
+name = "本地食物模块"
+provides = ["nutrition"]
+version = "0.1.0"
+interface = "v1"
+maintainer = "community"

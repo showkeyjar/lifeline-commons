@@ -1,0 +1,6 @@
+id = "energy"
+name = "本地能源模块"
+provides = ["electricity"]
+version = "0.1.0"
+interface = "v1"
+maintainer = "community"
