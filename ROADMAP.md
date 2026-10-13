@@ -29,6 +29,20 @@
 
 ---
 
+## 阶段 1.5 — 画像驱动的生存自由闭环（已完成 ✅）
+
+**目标**：把"策略推荐"和"供给模拟"两个脱节的半截接成一条命令，让"机器人先分析最佳生存策略、目标生存自由"真正可跑。
+
+- ✅ [`lifeline-os/lifeline.py`](https://github.com/showkeyjar/lifeline-commons/blob/main/lifeline-os/lifeline.py)：顶层闭环——读画像 → 策略分析器推荐策略 → 把画像（人口 + `asset_scale` 资产系数）喂给供给层模拟 → 综合成**生存自由指数**，输出一份完整的生存自由报告。
+- ✅ 供给模块接入 `asset_scale`：产能随画像缩放、需求随人口缩放，模拟不再永远用 12 人基准社区数据。
+- ✅ 3 个示例画像（`examples/profiles/`）：乡村有地小A、城市无地失业、城市有技能远程——分别演示"高自由度 / 需外部托底 / 靠可携带收入"。
+- ✅ 集成测试（`tests/test_lifeline.py`）+ CI 冒烟已覆盖闭环。
+- 模型与诚实边界见 [`docs/freedom-index.md`](docs/freedom-index.md)。
+
+**判定完成**：`python lifeline-os/lifeline.py --profile examples/profiles/*.json` 三种画像都能产出可信、差异化、诚实标注边界的报告；CI 绿。
+
+---
+
 ## 阶段 2 — 治理最小可用（MVP governance）
 
 **目标**：把 GOVERNANCE.md 从草案变成能真正运转的决策流程。

@@ -22,6 +22,7 @@
 - `modules/food`、`modules/energy`、`modules/water`：食物 / 能源 / 水模块的**数据驱动**参考实现（各 30 天自给模拟，算覆盖率，纯自给不交易）
 - `lifeline-os`：编排骨架（**自动发现**模块 + 接口契约校验），把模块跑起来，并生成**社区自给评估报告**（见 [`docs/example-report.md`](docs/example-report.md)）
 - `lifeline-os/strategy_analyzer.py`：**生存策略分析器**——先分析主人/社区资源画像，推荐最佳生存策略（荒地只是策略之一，目标是让主人实现生存自由）。见 [`docs/example-strategy-report.md`](docs/example-strategy-report.md)
+- `lifeline-os/lifeline.py`：**顶层闭环**（推荐入口）——把"画像 → 策略推荐 → 按画像跑供给模拟 → 生存自由指数"串成一条命令，输出一份完整的**生存自由报告**。荒地只是策略之一。见 [`docs/freedom-index.md`](docs/freedom-index.md)
 - `ROADMAP.md`：项目长期路线（协议层 + 社区实例层，分阶段、可落地）
 - `CONTRIBUTING.md`：怎么 conform 到接口贡献一个新模块
 - `GOVERNANCE.md`：**治理 + 模块准入评审清单 + 范围红线 + 抗捕获护栏**
@@ -34,11 +35,14 @@
 
 ## 怎么跑
 ```
-python lifeline-os/strategy_analyzer.py           # 分析画像，推荐最佳生存策略（先跑这个）
-python lifeline-os/orchestrator.py                # 跑闭环（自动发现 + 契约校验）+ 生成社区自给评估报告
+python lifeline-os/lifeline.py                                  # 顶层闭环：内置小A画像 → 生存自由报告（推荐入口）
+python lifeline-os/lifeline.py --profile examples/profiles/xiao_a_rural.json        # 读画像文件
+python lifeline-os/lifeline.py --profile your_profile.json --out report.md          # 写文件
+python lifeline-os/strategy_analyzer.py           # 只跑策略分析（想单独看策略推荐时用）
+python lifeline-os/orchestrator.py                # 只跑供给层闭环（自动发现 + 契约校验）+ 社区自给评估报告
 python -m unittest discover -s tests -t . -v       # 跑单元测试
 ```
-跑完会生成 `lifeline-os/last-report.md`——一份人读的自给率报告，社区可据此判断「我们退可守吗」。把 `modules/*/data/` 换成真实数据再跑即得专属报告。
+`lifeline.py` 跑完会输出一份**生存自由报告**（画像 + 推荐策略 + 各域自给模拟 + 自由指数）。把 `modules/*/data/` 换成真实数据、把 `examples/profiles/*.json` 换成你的画像再跑，即得专属报告。
 每次 push / PR 会自动在 Python 3.11/3.12/3.13 上跑闭环 **和** 单元测试（见 `.github/workflows/smoke.yml`）。
 
 ## 许可证

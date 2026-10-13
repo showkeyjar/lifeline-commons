@@ -65,18 +65,20 @@ class FoodModule:
             "strategy": "self-sufficiency",
             "priority": priority,
             "target_daily_meals": needs["daily_meals"],
+            # asset_scale：画像驱动的"资产规模系数"（1.0 = 持有与基准社区匹配的产能）。
+            "asset_scale": resources.get("asset_scale", 1.0),
         }
 
-    def _simulate(self, demand):
+    def _simulate(self, demand, asset_scale=1.0):
         cfg = self._config()
         inv_cfg = _load_json("inventory.json")
-        cap = inv_cfg["storage_capacity_meals"]
-        inv = inv_cfg.get("initial_meals", cap * 0.5)
-        min_reserve = inv_cfg.get("min_reserve_meals", 0)
+        cap = inv_cfg["storage_capacity_meals"] * asset_scale
+        inv = inv_cfg.get("initial_meals", cap * 0.5) * asset_scale
+        min_reserve = inv_cfg.get("min_reserve_meals", 0) * asset_scale
 
         daily = []
         for row in _load_yield():
-            produced = row["meals"]
+            produced = row["meals"] * asset_scale
             if produced >= demand:
                 supplied = demand
                 inv = min(cap, inv + (produced - demand))  # 余量入库，不卖
@@ -107,7 +109,7 @@ class FoodModule:
 
     def provide(self, plan):
         demand = plan["target_daily_meals"]
-        sim = self._simulate(demand)
+        sim = self._simulate(demand, plan.get("asset_scale", 1.0))
         self._last = sim
         short = sim["shortfall_days"] > 0
         return {

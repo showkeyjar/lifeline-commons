@@ -72,18 +72,20 @@ class WaterModule:
             "strategy": "self-sufficiency",
             "priority": priority,
             "target_daily_l": needs["daily_l"],
+            # asset_scale：画像驱动的"资产规模系数"（1.0 = 持有与基准社区匹配的产能）。
+            "asset_scale": resources.get("asset_scale", 1.0),
         }
 
-    def _simulate(self, demand):
+    def _simulate(self, demand, asset_scale=1.0):
         cfg = self._config()
         tank_cfg = _load_json("tank.json")
-        cap = tank_cfg["capacity_l"]
-        tank = tank_cfg.get("initial_l", cap * 0.5)
-        min_reserve = tank_cfg.get("min_reserve_l", 0)
+        cap = tank_cfg["capacity_l"] * asset_scale
+        tank = tank_cfg.get("initial_l", cap * 0.5) * asset_scale
+        min_reserve = tank_cfg.get("min_reserve_l", 0) * asset_scale
 
         daily = []
         for row in _load_supply():
-            produced = row["rain_l"] + row["well_l"]
+            produced = (row["rain_l"] + row["well_l"]) * asset_scale
             if produced >= demand:
                 supplied = demand
                 tank = min(cap, tank + (produced - demand))  # 余量入库，不卖
@@ -114,7 +116,7 @@ class WaterModule:
 
     def provide(self, plan):
         demand = plan["target_daily_l"]
-        sim = self._simulate(demand)
+        sim = self._simulate(demand, plan.get("asset_scale", 1.0))
         self._last = sim
         short = sim["shortfall_days"] > 0
         return {

@@ -1,0 +1,9 @@
+{
+  "has_land": true,
+  "capital": 1,
+  "skills": ["种地", "组织"],
+  "location": "乡村",
+  "household": 12,
+  "health": "良好",
+  "mobility": false
+}

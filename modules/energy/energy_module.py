@@ -66,16 +66,19 @@ class EnergyModule:
             "strategy": "self-sufficiency",
             "priority": priority,
             "target_daily_kwh": needs["daily_kwh"],
+            # asset_scale：画像驱动的"资产规模系数"（1.0 = 持有与基准社区匹配的产能）。
+            # 它让供给模拟真正吃进主人画像，而非永远用 12 人基准社区的数据。
+            "asset_scale": resources.get("asset_scale", 1.0),
         }
 
-    def _simulate(self, demand):
+    def _simulate(self, demand, asset_scale=1.0):
         cfg = self._config()
-        pv_kwp = cfg.get("pv_kwp", 0)
+        pv_kwp = cfg.get("pv_kwp", 0) * asset_scale
         battery = _load_json("battery.json")
-        cap = battery["capacity_kwh"]
-        soc = battery.get("initial_soc_kwh", cap * 0.5)
-        max_disch = battery["max_discharge_kwh_per_day"]
-        min_soc = battery.get("min_soc_kwh", 0)
+        cap = battery["capacity_kwh"] * asset_scale
+        soc = battery.get("initial_soc_kwh", cap * 0.5) * asset_scale
+        max_disch = battery["max_discharge_kwh_per_day"] * asset_scale
+        min_soc = battery.get("min_soc_kwh", 0) * asset_scale
 
         daily = []
         for row in _load_solar():
@@ -110,7 +113,7 @@ class EnergyModule:
 
     def provide(self, plan):
         demand = plan["target_daily_kwh"]
-        sim = self._simulate(demand)
+        sim = self._simulate(demand, plan.get("asset_scale", 1.0))
         self._last = sim
         short = sim["shortfall_days"] > 0
         return {

@@ -1,0 +1,9 @@
+{
+  "has_land": false,
+  "capital": 1,
+  "skills": ["远程工作", "电工"],
+  "location": "城市",
+  "household": 2,
+  "health": "良好",
+  "mobility": true
+}

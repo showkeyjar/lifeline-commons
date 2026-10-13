@@ -1,0 +1,9 @@
+{
+  "has_land": false,
+  "capital": 0,
+  "skills": [],
+  "location": "城市",
+  "household": 1,
+  "health": "良好",
+  "mobility": false
+}

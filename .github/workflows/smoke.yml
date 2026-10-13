@@ -19,5 +19,11 @@ jobs:
       - name: Run Lifeline OS loop (auto-discover + conformance check)
         run: python lifeline-os/orchestrator.py
 
-      - name: Run unit tests (contract conformance + coverage sanity)
+      - name: Run top-level closed loop (profile -> strategy -> simulation -> freedom index)
+        run: |
+          python lifeline-os/lifeline.py
+          python lifeline-os/lifeline.py --profile examples/profiles/urban_landless_unemployed.json
+          python lifeline-os/lifeline.py --profile examples/profiles/urban_skilled_remote.json
+
+      - name: Run unit tests (contract conformance + coverage sanity + integration)
         run: python -m unittest discover -s tests -t . -v
