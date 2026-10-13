@@ -78,16 +78,20 @@ class WaterModule:
             "asset_scale": resources.get("asset_scale", 1.0),
         }
 
-    def _simulate(self, demand, asset_scale=1.0):
+    def _simulate(self, demand, asset_scale=1.0, priority=None):
         cfg = self._config()
+        # 资产感知：仅统计画像真实拥有的水源与储水；priority=None 表示沿用内置基准（向后兼容 demo）。
         tank_cfg = _load_json("tank.json")
-        cap = tank_cfg["capacity_l"] * asset_scale
-        tank = tank_cfg.get("initial_l", cap * 0.5) * asset_scale
-        min_reserve = tank_cfg.get("min_reserve_l", 0) * asset_scale
+        has_tank = priority is None or "community-tank" in priority
+        cap = (tank_cfg["capacity_l"] * asset_scale) if has_tank else 0.0
+        tank = (tank_cfg.get("initial_l", cap * 0.5) * asset_scale) if has_tank else 0.0
+        min_reserve = (tank_cfg.get("min_reserve_l", 0) * asset_scale) if has_tank else 0.0
 
         daily = []
         for row in _load_supply():
-            produced = (row["rain_l"] + row["well_l"]) * asset_scale
+            rain_l = row["rain_l"] if (priority is None or "rain-harvest" in priority) else 0.0
+            well_l = row["well_l"] if (priority is None or "well" in priority) else 0.0
+            produced = (rain_l + well_l) * asset_scale
             if produced >= demand:
                 supplied = demand
                 tank = min(cap, tank + (produced - demand))  # 余量入库，不卖
@@ -118,7 +122,7 @@ class WaterModule:
 
     def provide(self, plan):
         demand = plan["target_daily_l"]
-        sim = self._simulate(demand, plan.get("asset_scale", 1.0))
+        sim = self._simulate(demand, plan.get("asset_scale", 1.0), plan.get("priority"))
         self._last = sim
         short = sim["shortfall_days"] > 0
         return {

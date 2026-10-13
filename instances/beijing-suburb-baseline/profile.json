@@ -1,0 +1,58 @@
+{
+  "_meta": {
+    "name": "北京郊区·极限自给示范（零装备起点）",
+    "location": "北京郊区（代表气象点 39.9°N, 116.4°E，海拔 221.6 m；NASA POWER 25 年气候平均 2001–2025）",
+    "instance_type": "郊区家庭·极限示范（零装备起点）",
+    "author": "匿名贡献者（极限示范）",
+    "collected_on": "2026-10-13",
+    "notes": "本实例刻意选最地板条件：4 人、4 亩地、资本档 1、唯一技能 IT、无任何能源/储水/大棚/牲畜装备。目的是证明——即使从近乎零的起点，模型也能给出可行的自给路径，让条件更好的人看到希望。气候为 NASA POWER 真实数据；其它资产均自报真实（无=0）。"
+  },
+
+  "household": 4,
+  "has_land": true,
+  "land_area_m2": 2666.7,
+  "capital": 1,
+  "location": "郊区",
+  "skills": ["IT"],
+  "health": "良好",
+  "mobility": true,
+
+  "climate": {
+    "solar_kwh_per_m2_day": 3.953,
+    "rainfall_mm_year": 533.0,
+    "avg_temp_c": 11.61,
+    "frost_free_days": 190
+  },
+
+  "assets": {
+    "solar_kw": 0,
+    "battery_kwh": 0,
+    "wind_kw": null,
+    "water_storage_l": 0,
+    "well": false,
+    "rainwater_harvesting": false,
+    "greenhouse_m2": 0,
+    "livestock": []
+  },
+
+  "sources": {
+    "household": "实际同住并一起吃饭的人头（自报）= 4",
+    "land_area_m2": "自报 4 亩；1 亩 = 666.67 m² → 2666.7 m²（待土地承包合同 / 手机 GPS 围合复核）",
+    "capital": "自评 1 档（0 赤贫 → 3 宽裕），依据：有限可变现资产",
+    "skills": "自报真实掌握技能：IT。注意：模型技能词典含'远程工作/手艺/医护/电工'，不含'IT'——IT 的远程变现潜力在模型中被低估，详见 SOURCES 末条与 notes.md",
+    "location": "北京郊区（自报）",
+    "health": "自报：良好",
+    "mobility": "自报：能自由移动 / 撤离（灾害撤离能力，非'想搬家'）",
+    "solar_kwh_per_m2_day": "NASA POWER ALLSKY_SFC_SW_DWN 25 年气候年均（39.9°N, 116.4°E），单位 kWh/m²/天 = 3.953",
+    "rainfall_mm_year": "NASA POWER PRECTOTCORR 年均 1.46 mm/天 × 365 ≈ 533 mm/年",
+    "avg_temp_c": "NASA POWER T2M 25 年气候年均 = 11.61 °C",
+    "frost_free_days": "非 NASA 直接字段；由月均温推导（MAR–NOV 共 9 个月均温 > 0°C）+ 北京农气参考，近似 190 天（标注：近似，非直接测量）",
+    "solar_kw": "无光伏，填 0",
+    "battery_kwh": "无储能电池，填 0",
+    "water_storage_l": "无水箱 / 水塔，填 0",
+    "well": "无井，false",
+    "rainwater_harvesting": "无集雨，false",
+    "greenhouse_m2": "无大棚，0",
+    "livestock": "无牲畜，空列表"
+  }
+}

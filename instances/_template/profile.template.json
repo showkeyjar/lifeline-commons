@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "name": "模板：真实社区实例档案",
+    "location": "真实地点（省/市/县，或经纬度）",
+    "instance_type": "离网家庭 / 社区菜园 / 防灾小组 / 村落 / 其他",
+    "author": "数据提供者（可匿名）",
+    "collected_on": "YYYY-MM-DD",
+    "notes": "本文件是真实实例的占位模板。所有数字必须来自真实来源，并在同级 SOURCES.md 写清出处。未知就填 null。"
+  },
+
+  "household": 4,
+  "has_land": true,
+  "land_area_m2": 800,
+  "capital": 2,
+  "location": "乡村",
+  "skills": ["种植", "基础电工"],
+  "health": "良好",
+  "mobility": true,
+
+  "climate": {
+    "solar_kwh_per_m2_day": null,
+    "rainfall_mm_year": null,
+    "avg_temp_c": null,
+    "frost_free_days": null
+  },
+
+  "assets": {
+    "solar_kw": 3.0,
+    "battery_kwh": 10.0,
+    "wind_kw": null,
+    "water_storage_l": 2000,
+    "well": true,
+    "rainwater_harvesting": false,
+    "greenhouse_m2": 30,
+    "livestock": []
+  },
+
+  "sources": {
+    "household": "户口本 / 实际共同居住人数",
+    "land_area_m2": "土地承包合同 / 实地测量 GPS",
+    "capital": "自评 0-3 档（0=赤贫 3=宽裕）",
+    "solar_kwh_per_m2_day": "NASA POWER / 当地气象站年均",
+    "rainfall_mm_year": "中国气象数据网 / NOAA / CHIRPS",
+    "solar_kw": "逆变器 / 光伏组件铭牌",
+    "battery_kwh": "电池铭牌标称容量",
+    "water_storage_l": "水箱 / 水塔容积铭牌",
+    "greenhouse_m2": "实地测量"
+  }
+}

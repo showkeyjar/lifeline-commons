@@ -60,11 +60,17 @@
 **目标**：落地一个最小部署，证明"不绑定巨头"的供给选项真实存在。
 
 - ✅ **启动清单已起草**：[`docs/community-playbook.md`](docs/community-playbook.md)——把蓝图案例变成 5 步可复制剧本（组队共识 → 拿地 → 部署产能 → 接入 Lifeline OS → 持续治理），含诚实门槛（不服务赤贫无地者）。
+- ✅ **实例载体已建**（2026-10-13）：`instances/` 目录 + 带溯源字段的 [`profile.template.json`](instances/_template/profile.template.json) + [`SOURCES.md`](instances/_template/SOURCES.md) 范本 + [`docs/real-instance-onboarding.md`](docs/real-instance-onboarding.md) 数据来源指南。真实实例与 `examples/`（示意 demo）明确区分——**真实实例的每个数字都必须带来源**。
+- ✅ **第一个真实实例已落地**（2026-10-13）：`instances/beijing-suburb-baseline/`——用户自家真实数据（北京郊区，4 人 / 4 亩地 / 资本档 1 / IT 技能 / 零装备），NASA POWER 真实气候，带 `SOURCES.md` + `notes.md`。仿真已资产感知，诚实显示供给地板 27%（能源/食物/水=0），仍给出 65 分半自给路 + 90 分远程收入杠杆。
 - 找 1 个离网/欠服务社区做伙伴（先谈，不急着上硬件）。
 - 部署最小栈（energy + food），用阶段 1 的数据驱动模块 + 真实本地数据。
 - 写一份公开的运行报告：解决了谁、覆盖多少、没解决什么（诚实记录边界）。
 
 **判定完成**：有一个真实社区在用；报告公开；明确标注本项目能/不能做什么。
+
+> **方向 A 已启动**：第一个真实实例选定"用户自家真实数据"（北京郊区极限示范，见上）。
+> 后续可叠加更多真实实例（你家 / 某社群 / 我以公开数据锚定的真实地点），每个都带 `SOURCES.md`。
+> 仿真资产感知已接通——零装备户不再被假设全套设备，供给地板诚实地趋近于 0，让"极限示范"真正可信。
 
 ---
 

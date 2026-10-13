@@ -38,6 +38,16 @@ def _has(p, skill):
     return skill in p.get("skills", [])
 
 
+def _marketable(p):
+    """可变现技能：手艺/医护/电工/远程工作，以及现代 IT 能力（可远程变现）。
+
+    原词典只认'远程工作/手艺/医护/电工'，漏掉了 2026 年大量 IT 从业者的远程变现潜力；
+    这里把 IT / 远程 / Remote 也计入，避免低估数字时代的核心谋生技能。
+    """
+    return any(s in p.get("skills", []) for s in
+               ("远程工作", "远程", "IT", "Remote", "手艺", "医护", "电工"))
+
+
 def _score_distributed(p):
     """策略1：分布式自给（荒地/集体土地自建）。适用：有地+有资本+有组织力。"""
     if not p.get("has_land"):
@@ -90,7 +100,7 @@ def _score_relocate(p):
     s = 45
     if p.get("health") == "良好":
         s += 15
-    if _has(p, "远程工作"):
+    if _marketable(p):
         s += 20
     if min(p.get("capital", 0), 3) >= 1:
         s += 10
@@ -99,7 +109,7 @@ def _score_relocate(p):
 
 def _score_skill_buffer(p):
     """策略5：技能变现+小缓冲（靠手艺/远程工作覆盖基础开销+建缓冲）。适用：有技能+健康。"""
-    has_marketable = _has(p, "远程工作") or _has(p, "手艺") or _has(p, "医护") or _has(p, "电工")
+    has_marketable = _marketable(p)
     if not has_marketable:
         return 0
     if p.get("health") != "良好":

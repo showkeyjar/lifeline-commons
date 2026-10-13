@@ -71,16 +71,18 @@ class FoodModule:
             "asset_scale": resources.get("asset_scale", 1.0),
         }
 
-    def _simulate(self, demand, asset_scale=1.0):
+    def _simulate(self, demand, asset_scale=1.0, priority=None):
         cfg = self._config()
+        # 资产感知：仅统计画像真实运营的农地与仓储；priority=None 表示沿用内置基准（向后兼容 demo）。
         inv_cfg = _load_json("inventory.json")
-        cap = inv_cfg["storage_capacity_meals"] * asset_scale
-        inv = inv_cfg.get("initial_meals", cap * 0.5) * asset_scale
-        min_reserve = inv_cfg.get("min_reserve_meals", 0) * asset_scale
+        has_storage = priority is None or "community-storage" in priority
+        cap = (inv_cfg["storage_capacity_meals"] * asset_scale) if has_storage else 0.0
+        inv = (inv_cfg.get("initial_meals", cap * 0.5) * asset_scale) if has_storage else 0.0
+        min_reserve = (inv_cfg.get("min_reserve_meals", 0) * asset_scale) if has_storage else 0.0
 
         daily = []
         for row in _load_yield():
-            produced = row["meals"] * asset_scale
+            produced = (row["meals"] * asset_scale) if (priority is None or "local-farm" in priority) else 0.0
             if produced >= demand:
                 supplied = demand
                 inv = min(cap, inv + (produced - demand))  # 余量入库，不卖
@@ -111,7 +113,7 @@ class FoodModule:
 
     def provide(self, plan):
         demand = plan["target_daily_meals"]
-        sim = self._simulate(demand, plan.get("asset_scale", 1.0))
+        sim = self._simulate(demand, plan.get("asset_scale", 1.0), plan.get("priority"))
         self._last = sim
         short = sim["shortfall_days"] > 0
         return {

@@ -60,6 +60,7 @@
 
 - `docs/module-interface-v1.md`：供给模块必须实现的**稳定接口**（实现可以换，接口留住）。这是项目的核心持久资产，也是中立协议的载体
 - `modules/food`、`modules/energy`、`modules/water`、`modules/shelter`、`modules/health`：食物 / 能源 / 水 / **住所** / **基础健康**模块的**数据驱动**参考实现（各 30 天自给模拟，算覆盖率，纯自给不交易）。`shelter` 与 `health` 都是"仅凭接口文档就能写出可插拔模块"的扩展样板
+- `examples/profiles/`：三个**示意性 demo** 画像（合成数据，演示算法用）；`instances/`：**真实社区实例**目录——每份档案带来源（`SOURCES.md`），区别于 demo，是项目"真有人在用"的承诺载体，见 [`instances/README.md`](instances/README.md) 与 [`docs/real-instance-onboarding.md`](docs/real-instance-onboarding.md)
 - `lifeline-os`：编排骨架（**自动发现**模块 + 接口契约校验），把模块跑起来，并生成**社区自给评估报告**（见 [`docs/example-report.md`](docs/example-report.md)）。报告支持多语言（`--lang`）
 - `lifeline-os/contract.py`：**协议一致性校验器**——任何第三方写完模块，跑它全绿即通过契约、可被自动发现接入（查结构 / 行为 / health 一致性 / 防硬编码 / 响应性）
 - `lifeline-os/strategy_analyzer.py`：**生存策略分析器**——先分析主人/社区资源画像，推荐最佳生存策略（荒地只是策略之一，目标是让主人实现生存自由）。见 [`docs/example-strategy-report.md`](docs/example-strategy-report.md)

@@ -143,6 +143,46 @@ def freedom_index(avg_coverage, strategy_score, strategy_key, profile):
 
 
 # ---------------------------------------------------------------------------
+# 画像资产 → 真实可用资源列表（资产感知；无 assets 字段则回退默认，向后兼容 demo）
+# ---------------------------------------------------------------------------
+def _derive_available(ctx):
+    """从画像上下文推导'真实可用资产'列表。
+
+    仅统计画像 assets 里确实拥有/运营的产能；没有 assets 字段时返回 None，
+    由调用方回退到 DEFAULT_RESOURCES，保证旧 demo / 测试行为不变。
+
+    设计要点（诚实）：has_land 只代表'有地可建'，不自动等于'已在产粮'；
+    local-farm / community-storage 只有在确实运营（大棚或显式 farm 标记）时才计入，
+    否则视为'尚未耕种'，让零装备户型的供给地板诚实地趋近于 0。
+    """
+    assets = ctx.get("assets")
+    if not isinstance(assets, dict):
+        return None
+    avail = []
+    if (assets.get("solar_kw") or 0) > 0:
+        avail.append("solar")
+    if (assets.get("battery_kwh") or 0) > 0:
+        avail.append("battery")
+    if assets.get("wind_kw"):
+        avail.append("wind")
+    if assets.get("well"):
+        avail.append("well")
+    if assets.get("rainwater_harvesting"):
+        avail.append("rain-harvest")
+    if (assets.get("water_storage_l") or 0) > 0:
+        avail.append("community-tank")
+    if (assets.get("greenhouse_m2") or 0) > 0:
+        avail.append("greenhouse")
+    has_land = ctx.get("has_land")
+    farming = (assets.get("greenhouse_m2") or 0) > 0 or assets.get("farm")
+    if has_land and farming:
+        avail.append("local-farm")
+    if (assets.get("water_storage_l") or 0) > 0 or farming:
+        avail.append("community-storage")
+    return avail
+
+
+# ---------------------------------------------------------------------------
 # 跑供给层（画像驱动）
 # ---------------------------------------------------------------------------
 def run_supply(population, asset_scale, community="profile-run", context=None):
@@ -158,7 +198,11 @@ def run_supply(population, asset_scale, community="profile-run", context=None):
         if isinstance(context, dict):
             ctx.update(context)
         needs = module.assess_needs(ctx)
-        resources = {"available": DEFAULT_RESOURCES, "asset_scale": asset_scale}
+        # 资产感知：画像带来真实资产记录时，用它推导可用资产；否则回退默认（向后兼容 demo）
+        avail = _derive_available(ctx)
+        if avail is None:
+            avail = DEFAULT_RESOURCES
+        resources = {"available": avail, "asset_scale": asset_scale}
         plan = module.schedule(resources, needs)
         delivery = module.provide(plan)
         # 6 元组：(module_id, module, needs, plan, delivery, context)
@@ -314,6 +358,7 @@ def main(argv=None):
         "location": profile.get("location"),
         "skills": profile.get("skills", []),
         "health": profile.get("health"),
+        "assets": profile.get("assets"),
     }
     results = run_supply(profile.get("household", 1), asset_scale, context=profile_ctx)
     report = render_report(profile, scored, asset_scale, results)
