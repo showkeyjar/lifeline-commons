@@ -18,9 +18,10 @@
 ```
 
 ## 现在有什么
-- `docs/module-interface-v1.md`：供给模块必须实现的**稳定接口**（实现可以换，接口留住）
-- `modules/food`、`modules/energy`、`modules/water`：食物 / 能源 / 水模块的**数据驱动**参考实现（各 30 天自给模拟，算覆盖率，纯自给不交易）
+- `docs/module-interface-v1.md`：供给模块必须实现的**稳定接口**（实现可以换，接口留住）。这是项目的核心持久资产，也是中立协议的载体
+- `modules/food`、`modules/energy`、`modules/water`、`modules/shelter`：食物 / 能源 / 水 / **住所**模块的**数据驱动**参考实现（各 30 天自给模拟，算覆盖率，纯自给不交易）。`shelter` 是"仅凭接口文档就能写出可插拔模块"的扩展样板
 - `lifeline-os`：编排骨架（**自动发现**模块 + 接口契约校验），把模块跑起来，并生成**社区自给评估报告**（见 [`docs/example-report.md`](docs/example-report.md)）
+- `lifeline-os/contract.py`：**协议一致性校验器**——任何第三方写完模块，跑它全绿即通过契约、可被自动发现接入（查结构 / 行为 / health 一致性 / 防硬编码 / 响应性）
 - `lifeline-os/strategy_analyzer.py`：**生存策略分析器**——先分析主人/社区资源画像，推荐最佳生存策略（荒地只是策略之一，目标是让主人实现生存自由）。见 [`docs/example-strategy-report.md`](docs/example-strategy-report.md)
 - `lifeline-os/lifeline.py`：**顶层闭环**（推荐入口）——把"画像 → 策略推荐 → 按画像跑供给模拟 → 生存自由指数"串成一条命令，输出一份完整的**生存自由报告**。荒地只是策略之一。见 [`docs/freedom-index.md`](docs/freedom-index.md)
 - `ROADMAP.md`：项目长期路线（协议层 + 社区实例层，分阶段、可落地）
@@ -40,7 +41,8 @@ python lifeline-os/lifeline.py --profile examples/profiles/xiao_a_rural.json    
 python lifeline-os/lifeline.py --profile your_profile.json --out report.md          # 写文件
 python lifeline-os/strategy_analyzer.py           # 只跑策略分析（想单独看策略推荐时用）
 python lifeline-os/orchestrator.py                # 只跑供给层闭环（自动发现 + 契约校验）+ 社区自给评估报告
-python -m unittest discover -s tests -t . -v       # 跑单元测试
+python lifeline-os/contract.py                     # 协议一致性校验：校验 modules/ 下全部模块（或传单个目录）
+python -m unittest discover -s tests -t . -v       # 跑单元测试（含契约一致性测试）
 ```
 `lifeline.py` 跑完会输出一份**生存自由报告**（画像 + 推荐策略 + 各域自给模拟 + 自由指数）。把 `modules/*/data/` 换成真实数据、把 `examples/profiles/*.json` 换成你的画像再跑，即得专属报告。
 每次 push / PR 会自动在 Python 3.11/3.12/3.13 上跑闭环 **和** 单元测试（见 `.github/workflows/smoke.yml`）。

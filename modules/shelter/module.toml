@@ -1,0 +1,6 @@
+id = "shelter"
+name = "本地住所模块"
+provides = ["shelter"]
+version = "0.1.0"
+interface = "v1"
+maintainer = "community"

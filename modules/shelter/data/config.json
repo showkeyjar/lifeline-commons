@@ -1,0 +1,11 @@
+{
+  "population": 12,
+  "default_capital": 1,
+  "horizon_days": 30,
+  "tenure_owned": 0.95,
+  "tenure_owned_urban": 0.90,
+  "tenure_rent": 0.60,
+  "tenure_none": 0.10,
+  "maint_base": 0.6,
+  "maint_per_scale": 0.4
+}

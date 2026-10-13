@@ -137,13 +137,19 @@ def freedom_index(avg_coverage, strategy_score, strategy_key, profile):
 # ---------------------------------------------------------------------------
 # 跑供给层（画像驱动）
 # ---------------------------------------------------------------------------
-def run_supply(population, asset_scale, community="profile-run"):
-    """按人口与资产系数跑所有合规模块，返回 [(module_id, module, needs, delivery), ...]。"""
+def run_supply(population, asset_scale, community="profile-run", context=None):
+    """按人口与资产系数跑所有合规模块，返回 [(module_id, module, needs, delivery), ...]。
+
+    context 可携带画像的住房字段（has_land/capital/location），供住所类模块使用；
+    其他模块忽略多余键。
+    """
     results = []
     for entry, klass in discover_modules():
         module = klass()
-        context = {"community": community, "population": population}
-        needs = module.assess_needs(context)
+        ctx = {"community": community, "population": population}
+        if isinstance(context, dict):
+            ctx.update(context)
+        needs = module.assess_needs(ctx)
         resources = {"available": DEFAULT_RESOURCES, "asset_scale": asset_scale}
         plan = module.schedule(resources, needs)
         delivery = module.provide(plan)
@@ -268,7 +274,12 @@ def main(argv=None):
     scored = sa.analyze(profile)
     top = scored[0]
     asset_scale = compute_asset_scale(profile, top[4])
-    results = run_supply(profile.get("household", 1), asset_scale)
+    housing_ctx = {
+        "has_land": profile.get("has_land"),
+        "capital": profile.get("capital"),
+        "location": profile.get("location"),
+    }
+    results = run_supply(profile.get("household", 1), asset_scale, context=housing_ctx)
     report = render_report(profile, scored, asset_scale, results)
 
     print(report)

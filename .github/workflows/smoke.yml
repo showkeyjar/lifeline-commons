@@ -19,6 +19,9 @@ jobs:
       - name: Run Lifeline OS loop (auto-discover + conformance check)
         run: python lifeline-os/orchestrator.py
 
+      - name: Run protocol conformance validator (contract.py)
+        run: python lifeline-os/contract.py
+
       - name: Run top-level closed loop (profile -> strategy -> simulation -> freedom index)
         run: |
           python lifeline-os/lifeline.py

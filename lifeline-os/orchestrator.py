@@ -29,7 +29,7 @@ REPORT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "last-rep
 REQUIRED_METHODS = ["name", "provides", "assess_needs", "schedule", "provide", "status"]
 
 # 各域的「日均需求」可读单位（用于报告）
-NEED_UNITS = {"energy": "kWh/天", "food": "餐/天", "water": "L/天"}
+NEED_UNITS = {"energy": "kWh/天", "food": "餐/天", "water": "L/天", "shelter": "人"}
 
 
 def _conforms(klass):
@@ -89,7 +89,10 @@ def _weakest_day(module):
 def run_loop(module):
     print(f"[Lifeline OS] 加载模块: {module.name()} (provides={module.provides()})")
 
-    context = {"community": "demo-village", "population": 12}
+    # 基准社区画像（demo-village）：默认按"已建立、自有住房"的乡村社区假设，
+    # 让住所类模块也有合理输入；真实画像请走 lifeline.py。
+    context = {"community": "demo-village", "population": 12,
+               "has_land": True, "capital": 2, "location": "乡村"}
     needs = module.assess_needs(context)
     print(f"  1) 感知需求: {needs}")
 
@@ -166,6 +169,8 @@ def _demand_value(needs, mid):
         return needs.get("daily_meals", "—")
     if mid == "water":
         return needs.get("daily_l", "—")
+    if mid == "shelter":
+        return needs.get("persons_need", "—")
     return "—"
 
 

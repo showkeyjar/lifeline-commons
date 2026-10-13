@@ -68,15 +68,18 @@
 
 ---
 
-## 阶段 4 — 协议硬化
+## 阶段 4 — 协议硬化（已完成 ✅）
 
 **目标**：让接口从"v1 草稿"变成可信、可互操作的标准。
 
-- 接口版本化（`module-interface-v2` 演进规则：只加不减、向后兼容）。
-- 写**协议一致性测试**（不仅是冒烟），纳入 CI。
-- 探索与既有开源项目的互操作：OpenAg（食物）、OpenEMS（能源）、Sandia PV Lib。
+- ✅ [`docs/module-interface-v1.md`](docs/module-interface-v1.md) 重写为**精确可执行契约**：方法签名/返回形状、`asset_scale` 与 `context` 约定、`module.toml` manifest schema、一致性不变量、版本演进规则（v1→v2 只加不减、向后兼容）。
+- ✅ [`lifeline-os/contract.py`](https://github.com/showkeyjar/lifeline-commons/blob/main/lifeline-os/contract.py)：协议一致性校验器（零依赖），查**结构 / 行为形状 / health 一致性 / 防硬编码压力测试 / 响应性**五类，CLI 跑全模块或单模块，失败非零退出。
+- ✅ 契约一致性测试（`tests/test_interface_contract.py`）：对 energy/food/water/shelter 跑全绿；并故意构造"硬编码 100%""缺方法"的假模块，断言校验器能抓出——证明契约不是摆设。
+- ✅ 新增 [`modules/shelter`](https://github.com/showkeyjar/lifeline-commons/blob/main/modules/shelter) 住所模块，**仅凭接口文档写成**，被自动发现并纳入生存自由指数——兑现"第三方能仅靠文档写出可插拔模块"的判定完成标准。住所维度让"有饭吃电用但无安全住房"的画像被诚实暴露（城市无地失业者住所覆盖仅 0.10）。
+- ✅ CI（`smoke.yml`）已加入运行 contract.py。
+- 后续（未做）：探索与既有开源项目的互操作（OpenAg / OpenEMS / Sandia PV Lib）；真要破 v1 语义时再升 `module-interface-v2`。
 
-**判定完成**：第三方能仅靠接口文档写出一个可插拔模块并通过一致性测试。
+**判定完成**：第三方能仅靠接口文档写出一个可插拔模块并通过一致性测试 —— 已用 shelter 模块实证。
 
 ---
 
