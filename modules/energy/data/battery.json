@@ -1,0 +1,6 @@
+{
+  "capacity_kwh": 30,
+  "initial_soc_kwh": 15,
+  "max_discharge_kwh_per_day": 20,
+  "min_soc_kwh": 3
+}
