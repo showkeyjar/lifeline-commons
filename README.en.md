@@ -20,6 +20,33 @@ The project's **tools and docs** are multilingual (currently: 中文 `zh`, Engli
 - ❌ "Once unemployed, Xiao A just buys a smart robot and that's enough to survive" — **false**. See [`docs/feasibility.md`](docs/feasibility.md): the fact that society *can* do something ≠ a purchasable robot will grow your food and generate your power for you ≠ it can be built and sold to you. A robot does convenience labor, not livelihood production; it doesn't close the loop and still needs money to maintain.
 - ✅ What this project solves is a **livelihood commons** of "being supplied without needing income" — not a particular machine. The robot is only a cost-reduction tool inside it.
 
+## How do I actually use this (3-step quickstart)
+
+One sentence up front: **Lifeline Commons is not an app you double-click open, and it is not a robot.** It's an open-source toolkit that runs on your own computer — you hand it a "resource profile", and it figures out "can I survive on what I have, how, and where are the gaps", and it can also hand you a **task list a robot can just follow**.
+
+Three scenarios for three kinds of people — read the one that fits you:
+
+### Scenario A: I want to know "can I / my community survive on our own?"
+1. Copy the sample profile closest to you: open `examples/profiles/` (`xiao_a_rural` rural-with-land Xiao A, `urban_landless_unemployed` urban landless unemployed, `urban_skilled_remote` urban skilled remote).
+2. Run one command:
+   ```bash
+   python lifeline-os/lifeline.py --profile examples/profiles/xiao_a_rural.json
+   ```
+3. Read the report: it gives you a **recommended strategy** + **self-sufficiency coverage** for the five domains (food / energy / water / shelter / health) + a composite **survival-freedom index**, and **honestly flags the weak spots** (e.g. "health coverage is only 0.65, the bigger real-world gap").
+   - Want your own real numbers? Swap the sample data under `modules/*/data/` for your community's real data, change the profile to yours, re-run.
+
+### Scenario B: I want to give a robot a task list it can actually do (Stage 6 Action Layer)
+1. Run:
+   ```bash
+   python lifeline-os/orchestrator.py --execute
+   ```
+2. It emits `lifeline-os/last-action-plan.json` — **17 task-level commands** (where to go, what to do, how to confirm), e.g. "if the water tank isn't full, pump to refill", "if inventory drops below threshold, harvest to resupply", "if equipment breaks, report for repair".
+3. Hand this JSON to the robot's **onboard controller** to read (local file, LAN, USB stick — any of them). The robot only sees "tasks" — how to step, how to grasp, how to avoid obstacles is its own low-level controller's job. **This project never emits motion primitives**, so Unitree, Boston Dynamics, any vendor's robot can plug in.
+   - ⚠️ Key point: **the robot does not touch git.** git is for developers collaborating. The real flow is — **you (the operator) generate the plan on your computer → hand the JSON to the robot**, not "let the robot clone the repo and pull the plan".
+
+### Scenario C: I'm a developer who wants to add a supply module (e.g. "medical", "transport")
+→ Follow `docs/en/module-interface-v1.md` to write a module with the 6 required methods, drop it in `modules/<your-domain>/`, run `python lifeline-os/contract.py` — all green means it's auto-discovered and plugged in.
+
 ## Three layers
 
 ```
@@ -28,7 +55,9 @@ Orchestration layer Lifeline OS   perceive → schedule → supply loop
 Supply-module layer   food / energy / water / shelter / health … independent, pluggable, replaceable
 ```
 
-## What's here now
+## What's in the project (quick reference, read on demand)
+
+> The three "how do I actually use this" sections above are enough to get started. The list below is an inventory — come back to it when writing code or contributing a module.
 
 - `docs/module-interface-v1.md`: the **stable interface** every supply module must implement (implementations can change; the interface stays). This is the project's core durable asset and the carrier of the neutral protocol.
 - `modules/food`, `modules/energy`, `modules/water`, `modules/shelter`, `modules/health`: **data-driven** reference implementations of food / energy / water / **shelter** / **basic health** (each a 30-day self-sufficiency simulation, computing coverage; pure self-sufficiency, no trading). `shelter` and `health` are extension templates proving "a pluggable module can be written from the interface doc alone".
