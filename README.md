@@ -23,6 +23,8 @@
 - `lifeline-os`：编排骨架（**自动发现**模块 + 接口契约校验），把模块跑起来
 - `ROADMAP.md`：项目长期路线（协议层 + 社区实例层，分阶段、可落地）
 - `CONTRIBUTING.md`：怎么 conform 到接口贡献一个新模块
+- `docs/feasibility.md`：**可行性分析**——为什么"买台机器人≠自给自足"（小A失业场景）
+- `docs/commercialization.md`：**商业化边界**——公益优先、核心不圈地、明确排除电力交易
 
 ## 怎么跑
 ```
