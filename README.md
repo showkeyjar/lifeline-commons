@@ -19,7 +19,7 @@
 
 ## 现在有什么
 - `docs/module-interface-v1.md`：供给模块必须实现的**稳定接口**（实现可以换，接口留住）
-- `modules/food`、`modules/energy`：食物 / 能源模块的薄参考实现（先模拟跑通闭环）
+- `modules/food`、`modules/energy`：食物 / 能源模块的**数据驱动**参考实现（30 天自给模拟，算覆盖率，纯自给不交易）
 - `lifeline-os`：编排骨架（**自动发现**模块 + 接口契约校验），把模块跑起来
 - `ROADMAP.md`：项目长期路线（协议层 + 社区实例层，分阶段、可落地）
 - `CONTRIBUTING.md`：怎么 conform 到接口贡献一个新模块
@@ -27,12 +27,14 @@
 - `docs/blueprint.md`：**项目蓝图**——把零散设想整理成可落地设计（小A荒地案例串起四层）
 - `docs/floor-options.md`：**托底反思**——荒地方案是最优托底吗？与现金底/基础服务的对比
 - `docs/commercialization.md`：**商业化边界**——公益优先、核心不圈地、明确排除电力交易
+- `tests/`：**单元测试**（契约合规 + 覆盖率自洽），守护接口不被破坏
 
 ## 怎么跑
 ```
-python lifeline-os/orchestrator.py
+python lifeline-os/orchestrator.py          # 跑闭环（自动发现 + 契约校验）
+python -m unittest discover -s tests -t . -v # 跑单元测试
 ```
-每次 push / PR 会自动在 Python 3.11/3.12/3.13 上跑闭环（见 `.github/workflows/smoke.yml`）。
+每次 push / PR 会自动在 Python 3.11/3.12/3.13 上跑闭环 **和** 单元测试（见 `.github/workflows/smoke.yml`）。
 
 ## 许可证
 AGPL-3.0（强 copyleft + 反圈地）。详见 `LICENSE`。

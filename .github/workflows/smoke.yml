@@ -18,3 +18,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run Lifeline OS loop (auto-discover + conformance check)
         run: python lifeline-os/orchestrator.py
+
+      - name: Run unit tests (contract conformance + coverage sanity)
+        run: python -m unittest discover -s tests -t . -v
