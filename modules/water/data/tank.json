@@ -1,0 +1,5 @@
+{
+  "capacity_l": 1000,
+  "initial_l": 300,
+  "min_reserve_l": 200
+}

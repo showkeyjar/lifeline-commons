@@ -45,7 +45,8 @@
 |---|---|---|---|
 | 能源 | 光伏 10 kWp + 储能 30 kWh | 0.999 | 光伏直供→储能补缺→余电只存不卖 |
 | 食物 | 温室/水培 + 库存 150 餐（初 50 / 保 20） | 0.997 | 本地生产→库存补缺→余量入库不卖 |
-| 水 / 住所 / 健康 | 按需 | — | 按同一接口接 `adapters/` |
+| 水 | 雨水收集 + 井水（可持续出水量）+ 储水罐 1000 L | 0.991 | 雨水/井水生产→储水罐补缺→余量入库不卖 |
+| 住所 / 健康 | 按需 | — | 按同一接口接 `adapters/` |
 
 > 这些是**数据驱动规划的演示值**，不是承诺。真实部署替换 `data/` 后重算。
 > **开荒、建房、种养**靠农机 + 人工，不属于本项目范围（见蓝图 `docs/blueprint.md`）。
@@ -55,7 +56,7 @@
 ## 4. 接入 Lifeline OS（项目交付核心）
 
 1. `git clone` 仓库，`python lifeline-os/orchestrator.py` 验证闭环跑通。
-2. 把你们真实的 `config.json` / `battery.json` / `solar_forecast.csv` / `inventory.json` / `yield_forecast.csv` 替换 `modules/*/data/` 下的样例。
+2. 把你们真实的 `config.json` / `battery.json` / `solar_forecast.csv` / `inventory.json` / `yield_forecast.csv` / `tank.json` / `supply_forecast.csv` 替换 `modules/*/data/` 下的样例。
 3. 跑出**你们社区的自给覆盖率**，找出"最弱的那天"针对性补强（调大产能 / 电池 / 库存）。
 4. 新增模块：走 [PR 模板](https://github.com/showkeyjar/lifeline-commons/blob/main/.github/PULL_REQUEST_TEMPLATE.md) + GOVERNANCE §3 评审清单。
 

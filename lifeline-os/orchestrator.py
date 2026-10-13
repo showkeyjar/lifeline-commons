@@ -73,7 +73,8 @@ def run_loop(module):
     needs = module.assess_needs(context)
     print(f"  1) 感知需求: {needs}")
 
-    resources = {"available": ["solar", "local-farm", "community-storage", "battery"]}
+    resources = {"available": ["solar", "local-farm", "community-storage", "battery",
+                              "rain-harvest", "well", "community-tank"]}
     plan = module.schedule(resources, needs)
     print(f"  2) 调度资源: {plan}")
 

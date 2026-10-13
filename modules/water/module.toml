@@ -1,0 +1,6 @@
+id = "water"
+name = "本地水模块"
+provides = ["water"]
+version = "0.1.0"
+interface = "v1"
+maintainer = "community"

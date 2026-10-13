@@ -29,6 +29,7 @@ def _load_module_class(file_path, class_name):
 
 ENERGY_FILE = os.path.join(ROOT, "modules", "energy", "energy_module.py")
 FOOD_FILE = os.path.join(ROOT, "modules", "food", "food_module.py")
+WATER_FILE = os.path.join(ROOT, "modules", "water", "water_module.py")
 ORCH_FILE = os.path.join(ROOT, "lifeline-os", "orchestrator.py")
 
 
@@ -52,10 +53,20 @@ class TestConformance(unittest.TestCase):
     def test_provides_is_list(self):
         energy = _load_module_class(ENERGY_FILE, "EnergyModule")()
         food = _load_module_class(FOOD_FILE, "FoodModule")()
+        water = _load_module_class(WATER_FILE, "WaterModule")()
         self.assertIsInstance(energy.provides(), list)
         self.assertIsInstance(food.provides(), list)
+        self.assertIsInstance(water.provides(), list)
         self.assertIn("electricity", energy.provides())
         self.assertIn("nutrition", food.provides())
+        self.assertIn("water", water.provides())
+
+    def test_water_conforms(self):
+        cls = _load_module_class(WATER_FILE, "WaterModule")
+        inst = cls()
+        for m in REQUIRED_METHODS:
+            self.assertTrue(callable(getattr(inst, m, None)),
+                            f"WaterModule 缺少必需方法: {m}")
 
 
 class TestEnergyCoverage(unittest.TestCase):
@@ -115,16 +126,44 @@ class TestFoodCoverage(unittest.TestCase):
         self.assertGreaterEqual(st["min_inventory"], 0.0)
 
 
-class TestOrchestratorDiscovery(unittest.TestCase):
-    """编排器能自动发现 energy + food 两个模块。"""
+class TestWaterCoverage(unittest.TestCase):
+    """水模块 30 天自给模拟的自洽性。"""
 
-    def test_discovers_both_modules(self):
+    def setUp(self):
+        self.mod = _load_module_class(WATER_FILE, "WaterModule")()
+        needs = self.mod.assess_needs({"population": 12})
+        plan = self.mod.schedule(
+            {"available": ["rain-harvest", "well", "community-tank"]}, needs
+        )
+        self.result = self.mod.provide(plan)
+
+    def test_avg_coverage_in_range(self):
+        cov = self.result["delivered_avg_coverage"]
+        self.assertGreaterEqual(cov, 0.0)
+        self.assertLessEqual(cov, 1.0)
+
+    def test_days_sum_to_horizon(self):
+        self.assertEqual(
+            self.result["full_days"] + self.result["shortfall_days"], 30
+        )
+
+    def test_status_exposes_min_tank(self):
+        st = self.mod.status()
+        self.assertIn("min_tank_l", st)
+        self.assertGreaterEqual(st["min_tank_l"], 0.0)
+
+
+class TestOrchestratorDiscovery(unittest.TestCase):
+    """编排器能自动发现 energy + food + water 模块。"""
+
+    def test_discovers_all_modules(self):
         spec = importlib.util.spec_from_file_location("orchestrator", ORCH_FILE)
         orch = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(orch)
         found = [mid for mid, _ in orch.discover_modules()]
         self.assertIn("energy", found)
         self.assertIn("food", found)
+        self.assertIn("water", found)
 
 
 if __name__ == "__main__":
