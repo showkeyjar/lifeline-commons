@@ -158,3 +158,48 @@ maintainer = "community"  # 维护者
 5. 提 PR，按 `GOVERNANCE.md` 的模块准入清单评审。
 
 > 接口是本项目真正的持久资产。实现可以推倒重来，接口尽量不动。
+
+---
+
+## 10. 动作层扩展（可选 · Stage 6）
+
+供给闭环（§2 的 6 方法）只回答"够不够"。**动作层**让模块进一步吐出"该让机器人做什么"的任务级指令，把覆盖率报告翻译成人形机器人可执行的任务——去哪、干什么、怎么确认。
+
+### 10.1 粒度原则（红线）
+
+动作**必须停在任务级**，绝不下发运动原语。详见 [`docs/action-layer.md`](action-layer.md)。核心约束：
+
+- 命令必须是任务级（`harvest / pump / inspect / serve / repair / request_help / seek_care / shed_load / draw` …）。
+- 禁止 `move_to / navigate / walk / grasp / pick / place / rotate_joint` 等运动原语——这些是机器人自身运动规划的职责。
+- `make_action()` 在构造期拒绝黑名单命令；`tests/test_actions.py` 永久守护。
+
+### 10.2 可选方法签名
+
+在 `<Id>Module` 上加一个**可选**方法（未实现则编排器/契约安全跳过，向后兼容）：
+
+```python
+from action_spec import make_action
+
+def actions(self, plan, context) -> list[dict]:
+    """返回任务级动作列表。plan/context 用于推导参数。"""
+    ...
+```
+
+### 10.3 单条动作形状
+
+每条动作由 `action_spec.make_action()` 构造，含 `id / domain / actor / command / target / params / frequency / priority / precondition / expected_effect / verify / note`（详见 `action_spec.REQUIRED_FIELDS`）。
+
+- `frequency`：`once` / `daily` / `weekly` / `on-demand`。
+- `precondition`（空=永远满足）/ `expected_effect`（空=只监测/验收）/ `verify`（空=不验收）都是**世界状态表达式**：
+  - 比较 `eval_condition`：`water.tank_l < 2500`、`health.needs_care == True`。
+  - 赋值 `apply_effect`：`food.inventory_meals += 40`、`energy.soc_kwh = 5`。
+- 世界状态是扁平指标字典（键如 `energy.soc_kwh`），由机器人感知层填充；`action_spec.default_operational_state()` 提供演示初值。
+
+### 10.4 编排与执行
+
+- 编排器 `collect_action_plan(results)` 汇集各模块动作 → 生成 `last-action-plan.json` / `.md`（多语言）。
+- 参考执行器 `executor.py` 在世界状态上模拟值守：续航门槛 → 前置门控 → 施加效果 → 扣电 → 验收；`expand_schedule()` 把 `daily/weekly/once` 铺成 30 天排程，`on-demand` 由事件触发。
+
+### 10.5 版本演进
+
+动作层 schema 版本见 `action_spec.ACTION_SCHEMA_VERSION`。与 §8 一致：只加不减、向后兼容；破坏性变更升主版本号。

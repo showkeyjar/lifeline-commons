@@ -12,6 +12,8 @@ import csv
 import json
 import os
 
+from action_spec import make_action
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
 
@@ -128,3 +130,54 @@ class FoodModule:
             "avg_coverage": self._last["avg_coverage"],
             "min_inventory": self._last["min_inventory"],
         }
+
+    # ------------------------------------------------------------------
+    # 动作层（Stage 6，可选扩展）：把覆盖率报告翻译成人形机器人可执行的任务指令。
+    # 粒度停在"任务级"——只说去哪、干什么、怎么确认，绝不下发运动原语。
+    # 编排器在收集完供给结果后调用；plan/context 用于推导参数（如每日需求量）。
+    # ------------------------------------------------------------------
+    def actions(self, plan, context):
+        demand = plan.get("target_daily_meals", DEFAULT_MEALS_PER_PERSON)
+        harvest_meals = int(round(demand * 1.2))
+        return [
+            make_action(
+                id="food.daily.harvest", domain="food", actor="robot",
+                command="harvest", target="local-farm",
+                params={"meals": harvest_meals},
+                frequency="daily", priority="high",
+                precondition="food.inventory_meals < 600",
+                expected_effect=f"food.inventory_meals += {harvest_meals}",
+                verify="food.inventory_meals <= 800",
+                note="本地农场地块每日采收，补足社区餐食库存（净增约 20%）。",
+            ),
+            make_action(
+                id="food.daily.serve", domain="food", actor="robot",
+                command="serve", target="community",
+                params={"meals": demand},
+                frequency="daily", priority="high",
+                precondition=f"food.inventory_meals >= {demand}",
+                expected_effect=f"food.inventory_meals -= {demand}",
+                verify="food.inventory_meals >= 0",
+                note="按人口把库存餐食分发给社区；库存不足时跳过（改由 request_help 求援）。",
+            ),
+            make_action(
+                id="food.daily.monitor", domain="food", actor="robot",
+                command="monitor", target="community-storage",
+                params={},
+                frequency="daily", priority="low",
+                precondition="",
+                expected_effect="",
+                verify="food.inventory_meals >= 0",
+                note="巡检仓储温湿度与存量，仅监测不改动状态。",
+            ),
+            make_action(
+                id="food.on_demand.request_help", domain="food", actor="community",
+                command="request_help", target="community",
+                params={"reason": "food_shortage"},
+                frequency="on-demand", priority="high",
+                precondition="food.inventory_meals < food.reserve_meals",
+                expected_effect="",
+                verify="",
+                note="当餐食存量跌破安全储备，向社区/邻里求援，不自行解决。",
+            ),
+        ]

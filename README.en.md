@@ -37,6 +37,7 @@ Supply-module layer   food / energy / water / shelter / health … independent, 
 - `lifeline-os/strategy_analyzer.py`: the **survival-strategy analyzer** — first analyze the owner's / community's resource profile, then recommend the best survival strategy (wasteland is only one strategy among many; the goal is the owner's survival-freedom). See [`docs/example-strategy-report.md`](docs/example-strategy-report.md).
 - `lifeline-os/lifeline.py`: the **top-level closed loop** (recommended entry) — chaining "profile → strategy recommendation → profile-driven supply simulation → survival-freedom index" into one command, outputting a complete **survival-freedom report**. Wasteland is only one strategy. See [`docs/freedom-index.md`](docs/freedom-index.md).
 - `ROADMAP.md`: the long-term roadmap (protocol layer + community-instance layer, staged and actionable).
+- `docs/action-layer.md`: the **Action Layer (Stage 6)** — translates "is there enough" into **task-level commands** a humanoid robot can execute (where to go, what to do, how to confirm); granularity stops at the task level, never emits motion primitives.
 - `CONTRIBUTING.md`: how to conform to the interface and contribute a new module.
 - `GOVERNANCE.md`: **governance + module-admission checklist + scope red lines + anti-capture guardrails**.
 - `docs/feasibility.md`: **feasibility analysis** — why "buy a robot ≠ self-sufficiency" (Xiao A unemployment scenario).
@@ -60,7 +61,9 @@ python lifeline-os/orchestrator.py                # supply-layer loop only (auto
 python lifeline-os/orchestrator.py --lang en      # English community report
 python lifeline-os/contract.py                     # protocol conformance check: all modules under modules/ (or pass a single dir)
 python lifeline-os/i18n.py --check                 # check that en/es cover all Chinese keys
-python -m unittest discover -s tests -t . -v       # run unit tests (incl. contract conformance + i18n tests)
+python lifeline-os/orchestrator.py --execute       # generate the robot action plan and run the reference executor (Stage 6)
+python lifeline-os/executor.py --plan lifeline-os/last-action-plan.json   # run the reference executor standalone
+python -m unittest discover -s tests -t . -v       # run unit tests (contract conformance + i18n + action layer)
 ```
 
 `lifeline.py` outputs a **survival-freedom report** (profile + recommended strategies + per-domain simulation + freedom index), with `--lang` to switch language. Replace `modules/*/data/` with real data and `examples/profiles/*.json` with your profile, then re-run to get your own report.

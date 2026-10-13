@@ -19,6 +19,8 @@ asset_scale（资本）提升可维护缓冲与自有概率；context 的 has_la
 import json
 import os
 
+from action_spec import make_action
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
 
@@ -127,3 +129,41 @@ class ShelterModule:
             "tenure_secure": self._last["tenure_secure"],
             "maint_factor": self._last["maint_factor"],
         }
+
+    # ------------------------------------------------------------------
+    # 动作层（Stage 6，可选扩展）：人形机器人任务级指令。
+    # 住所是"静态居住安全"，机器人负责巡检；损伤超阈值时维护/修缮。
+    # ------------------------------------------------------------------
+    def actions(self, plan, context):
+        return [
+            make_action(
+                id="shelter.daily.inspect", domain="shelter", actor="robot",
+                command="inspect", target="structure",
+                params={},
+                frequency="daily", priority="low",
+                precondition="",
+                expected_effect="",
+                verify="shelter.tenure_secure >= 0",
+                note="巡检房屋结构安全，仅监测不改动状态。",
+            ),
+            make_action(
+                id="shelter.daily.monitor", domain="shelter", actor="robot",
+                command="monitor", target="tenure",
+                params={},
+                frequency="daily", priority="low",
+                precondition="",
+                expected_effect="",
+                verify="shelter.maint_factor >= 0",
+                note="监测保有状态与可维护缓冲，仅监测不改动状态。",
+            ),
+            make_action(
+                id="shelter.on_demand.repair", domain="shelter", actor="robot",
+                command="repair", target="structure",
+                params={},
+                frequency="on-demand", priority="high",
+                precondition="shelter.damage > 0.2",
+                expected_effect="shelter.damage -= 0.1",
+                verify="shelter.damage <= 0.2",
+                note="当结构损伤超过阈值，实施维护/修缮；无法自修则走社区互助。",
+            ),
+        ]

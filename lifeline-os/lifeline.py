@@ -31,6 +31,7 @@ sys.path.insert(0, ROOT)
 if LIFELINE_OS_DIR not in sys.path:
     sys.path.insert(0, LIFELINE_OS_DIR)
 import i18n  # noqa: E402  多语言：所有面向人的字符串走 t()
+import executor  # noqa: E402  参考执行器（Stage 6，动作层）
 
 # 复用编排器的模块自动发现、最弱日、需求单位等逻辑（目录名含连字符，无法当包名导入）
 _spec = importlib.util.spec_from_file_location(
@@ -42,6 +43,9 @@ discover_modules = _orch.discover_modules
 _weakest_day = _orch._weakest_day
 NEED_UNITS = _orch.NEED_UNITS
 _demand_value = _orch._demand_value
+collect_action_plan = _orch.collect_action_plan
+generate_action_plan_json = _orch.generate_action_plan_json
+generate_action_plan_md = _orch.generate_action_plan_md
 
 # 默认可用资源（画像未特别指定时，按"已建好基础资产"假设）
 DEFAULT_RESOURCES = [
@@ -157,7 +161,8 @@ def run_supply(population, asset_scale, community="profile-run", context=None):
         resources = {"available": DEFAULT_RESOURCES, "asset_scale": asset_scale}
         plan = module.schedule(resources, needs)
         delivery = module.provide(plan)
-        results.append((entry, module, needs, delivery))
+        # 6 元组：(module_id, module, needs, plan, delivery, context)
+        results.append((entry, module, needs, plan, delivery, ctx))
     return results
 
 
@@ -215,7 +220,7 @@ def render_report(profile, scored, asset_scale, results):
                  f"{i18n.t('th.full')} | {i18n.t('th.short')} | {i18n.t('th.weak')} |")
     lines.append("|---|---|---|---|---|---|")
     covs = []
-    for mid, module, needs, delivery in results:
+    for mid, module, needs, plan, delivery, ctx in results:
         unit = i18n.t(f"unit.{mid}")
         demand = _demand_value(needs, mid)
         avg = delivery.get("delivered_avg_coverage", 0)
@@ -270,6 +275,7 @@ def main(argv=None):
     profile = _demo_profile()
     out_path = None
     lang = "zh"
+    do_execute = False
 
     i = 0
     while i < len(argv):
@@ -284,6 +290,9 @@ def main(argv=None):
         elif a == "--lang" and i + 1 < len(argv):
             lang = argv[i + 1]
             i += 2
+        elif a == "--execute":
+            do_execute = True
+            i += 1
         else:
             i += 1
 
@@ -314,6 +323,28 @@ def main(argv=None):
         with open(out_path, "w", encoding="utf-8") as f:
             f.write(report + "\n")
         print(f"\n[Lifeline] {i18n.t('lf.written')}: {out_path}")
+
+    # 动作层（Stage 6）：汇集任务级指令，写计划；可选驱动参考执行器
+    actions = collect_action_plan(results)
+    plan_json = generate_action_plan_json(actions, community=profile.get("community", "profile-run"))
+    plan_md = generate_action_plan_md(actions)
+    action_plan_path = os.path.join(LIFELINE_OS_DIR, "last-action-plan.json")
+    action_plan_md_path = os.path.join(LIFELINE_OS_DIR, "last-action-plan.md")
+    with open(action_plan_path, "w", encoding="utf-8") as f:
+        json.dump(plan_json, f, ensure_ascii=False, indent=2)
+    with open(action_plan_md_path, "w", encoding="utf-8") as f:
+        f.write(plan_md + "\n")
+    print(f"\n[Lifeline] {i18n.t('oc.action_plan_written')}: {action_plan_path} "
+          f"({plan_json['meta']['action_count']} actions)")
+
+    if do_execute:
+        print(f"\n[Lifeline] {i18n.t('oc.action_execute')} ...")
+        out = executor.execute_plan(plan_json["actions"])
+        s = out["summary"]
+        print(f"  {i18n.t('oc.action_exec_summary')}: "
+              f"{i18n.t('oc.action_ok')}={s['ok']} "
+              f"{i18n.t('oc.action_skip')}={s['skip']} "
+              f"{i18n.t('oc.action_failed')}={s['failed']}")
     return report
 
 

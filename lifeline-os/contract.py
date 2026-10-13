@@ -26,6 +26,7 @@ import sys
 LIFELINE_OS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(LIFELINE_OS_DIR, "..")
 sys.path.insert(0, ROOT)
+import action_spec  # noqa: E402  动作层核心规范（Stage 6）
 
 REQUIRED_METHODS = ["name", "provides", "assess_needs", "schedule", "provide", "status"]
 
@@ -201,6 +202,27 @@ def _check_responsive(klass):
     return ("pass", f"响应性成立(宽裕 {cb:.3f} > 极端 {cs:.3f})")
 
 
+def _check_actions(klass):
+    """动作层（Stage 6）可选检查：模块若实现了 actions()，则返回的动作必须合规。
+
+    未实现 actions() 的模块 → skip（动作层是向后兼容的可选扩展，不强制）。
+    """
+    if not callable(getattr(klass, "actions", None)):
+        return ("skip", "未实现动作层 actions()（可选扩展，跳过）")
+    try:
+        inst = klass()
+        acts = inst.actions({}, {})
+    except Exception as e:  # noqa: BLE001
+        return ("fail", f"调用 actions() 抛异常: {e}")
+    if not isinstance(acts, list) or not acts:
+        return ("fail", "actions() 必须返回非空动作列表")
+    problems = action_spec.validate_plan(acts)
+    if problems:
+        return ("fail", f"动作计划存在 {len(problems)} 处问题: " +
+                "; ".join(f"{pid}: {iss}" for pid, iss in problems))
+    return ("pass", f"动作合规（{len(acts)} 条任务级指令）")
+
+
 # ---------------------------------------------------------------------------
 # 汇总
 # ---------------------------------------------------------------------------
@@ -210,6 +232,7 @@ CHECKS = [
     ("health 一致性", _check_health_consistency),
     ("防硬编码压力测试", _check_stress),
     ("响应性", _check_responsive),
+    ("动作规范（可选）", _check_actions),
 ]
 
 
@@ -283,7 +306,7 @@ def main(argv=None):
         verdict = "✅ 通过" if ok else "❌ 不通过"
         print(f"\n[{verdict}] 模块: {entry}  ({d})")
         for cname, status, detail in findings:
-            icon = {"pass": "✓", "fail": "✗", "warn": "!"}.get(status, "?")
+            icon = {"pass": "✓", "fail": "✗", "warn": "!", "skip": "·"}.get(status, "?")
             print(f"   {icon} {cname}: {detail}")
     print("\n" + "=" * 70)
     if all_ok:

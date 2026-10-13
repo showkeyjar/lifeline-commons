@@ -25,6 +25,9 @@ jobs:
       - name: Check i18n key completeness (zh -> en/es)
         run: python lifeline-os/i18n.py --check
 
+      - name: Generate robot action plan + run reference executor (Stage 6)
+        run: python lifeline-os/orchestrator.py --execute
+
       - name: Run top-level closed loop (profile -> strategy -> simulation -> freedom index)
         run: |
           python lifeline-os/lifeline.py

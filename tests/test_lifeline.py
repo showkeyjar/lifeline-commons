@@ -39,7 +39,7 @@ def _load_analyzer():
 def _energy_avg_coverage(population, asset_scale):
     ll = _load_lifeline()
     results = ll.run_supply(population, asset_scale, community="test")
-    for mid, _m, _n, d in results:
+    for mid, _m, _n, _p, d, _c in results:
         if mid == "energy":
             return d["delivered_avg_coverage"]
     raise AssertionError("energy module missing")

@@ -11,6 +11,8 @@ import csv
 import json
 import os
 
+from action_spec import make_action
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
 
@@ -132,3 +134,41 @@ class EnergyModule:
             "avg_coverage": self._last["avg_coverage"],
             "min_soc_kwh": self._last["min_soc_kwh"],
         }
+
+    # ------------------------------------------------------------------
+    # 动作层（Stage 6，可选扩展）：人形机器人任务级指令。
+    # 能源的"生产"来自光伏/储能（由供给模拟建模），机器人负责巡检与保电。
+    # ------------------------------------------------------------------
+    def actions(self, plan, context):
+        return [
+            make_action(
+                id="energy.daily.inspect", domain="energy", actor="robot",
+                command="inspect", target="solar-array",
+                params={},
+                frequency="daily", priority="low",
+                precondition="",
+                expected_effect="",
+                verify="energy.soc_kwh > 0",
+                note="巡检光伏阵列与逆变器，仅监测不改动状态。",
+            ),
+            make_action(
+                id="energy.daily.monitor", domain="energy", actor="robot",
+                command="monitor", target="battery",
+                params={},
+                frequency="daily", priority="low",
+                precondition="",
+                expected_effect="",
+                verify="energy.soc_kwh >= 0",
+                note="监测储能 SOC，仅监测不改动状态。",
+            ),
+            make_action(
+                id="energy.on_demand.shed_load", domain="energy", actor="robot",
+                command="shed_load", target="distribution-board",
+                params={"recover_kwh": 4},
+                frequency="on-demand", priority="high",
+                precondition="energy.soc_kwh < 5",
+                expected_effect="energy.soc_kwh += 4",
+                verify="energy.soc_kwh >= 0",
+                note="当储能逼近下限，切除非必要负载以保住关键供电；不自行发电。",
+            ),
+        ]

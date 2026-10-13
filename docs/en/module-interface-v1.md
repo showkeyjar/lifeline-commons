@@ -158,3 +158,48 @@ maintainer = "community"  # maintainer
 5. Open a PR reviewed against the module-admission checklist in `GOVERNANCE.md`.
 
 > The interface is this project's true durable asset. Implementations can be rewritten from scratch; the interface should stay put.
+
+---
+
+## 10. Action-Layer Extension (optional · Stage 6)
+
+The supply loop (the 6 methods in §2) only answers "is there enough?". The **action layer** lets a module additionally emit *task-level* commands a humanoid robot can execute — translating the coverage report into "where to go, what to do, how to confirm". See [`docs/action-layer.md`](../action-layer.md).
+
+### 10.1 Granularity principle (red line)
+
+Actions must stop at the **task level**; never emit motion primitives. Core constraints:
+
+- Commands must be task-level (`harvest / pump / inspect / serve / repair / request_help / seek_care / shed_load / draw` …).
+- Forbidden: `move_to / navigate / walk / grasp / pick / place / rotate_joint` … — those are the robot's own motion-planning job.
+- `make_action()` rejects blacklisted commands at construction; `tests/test_actions.py` guards this permanently.
+
+### 10.2 Optional method signature
+
+Add an **optional** method to `<Id>Module` (if absent, the orchestrator/contract safely skip — backward compatible):
+
+```python
+from action_spec import make_action
+
+def actions(self, plan, context) -> list[dict]:
+    """Return task-level actions. plan/context help derive parameters."""
+    ...
+```
+
+### 10.3 Single-action shape
+
+Each action is built by `action_spec.make_action()` and contains `id / domain / actor / command / target / params / frequency / priority / precondition / expected_effect / verify / note` (see `action_spec.REQUIRED_FIELDS`).
+
+- `frequency`: `once` / `daily` / `weekly` / `on-demand`.
+- `precondition` (empty = always met) / `expected_effect` (empty = monitor/verify only) / `verify` (empty = no verification) are **world-state expressions**:
+  - comparison `eval_condition`: `water.tank_l < 2500`, `health.needs_care == True`.
+  - assignment `apply_effect`: `food.inventory_meals += 40`, `energy.soc_kwh = 5`.
+- World state is a flat metric dict (keys like `energy.soc_kwh`), filled by the robot's perception layer; `action_spec.default_operational_state()` provides a demo initial state.
+
+### 10.4 Orchestration & execution
+
+- Orchestrator `collect_action_plan(results)` gathers module actions → writes `last-action-plan.json` / `.md` (multilingual).
+- Reference executor `executor.py` simulates duty on the world state: battery threshold → precondition gate → apply effect → deduct battery → verify; `expand_schedule()` spreads `daily/weekly/once` across a 30-day timeline, `on-demand` is event-triggered.
+
+### 10.5 Versioning
+
+Action-layer schema version: `action_spec.ACTION_SCHEMA_VERSION`. Same rule as §8: add-only, backward compatible; bump the major version on breaking changes.

@@ -12,6 +12,8 @@ import csv
 import json
 import os
 
+from action_spec import make_action
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
 
@@ -135,3 +137,53 @@ class WaterModule:
             "avg_coverage": self._last["avg_coverage"],
             "min_tank_l": self._last["min_tank_l"],
         }
+
+    # ------------------------------------------------------------------
+    # 动作层（Stage 6，可选扩展）：人形机器人任务级指令。
+    # 机器人负责抽水补罐、取用、巡检；"生产"来自雨水/井水（供给模拟建模）。
+    # ------------------------------------------------------------------
+    def actions(self, plan, context):
+        demand = plan.get("target_daily_l", 600)
+        pump_l = int(round(demand))
+        return [
+            make_action(
+                id="water.daily.pump", domain="water", actor="robot",
+                command="pump", target="well",
+                params={"liters": pump_l},
+                frequency="daily", priority="high",
+                precondition="water.tank_l < 2500",
+                expected_effect=f"water.tank_l += {pump_l}",
+                verify="water.tank_l <= 3200",
+                note="从井/雨水集取抽水补罐，使储水罐维持在安全线以上。",
+            ),
+            make_action(
+                id="water.daily.draw", domain="water", actor="robot",
+                command="draw", target="community",
+                params={"liters": demand},
+                frequency="daily", priority="high",
+                precondition=f"water.tank_l >= {demand}",
+                expected_effect=f"water.tank_l -= {demand}",
+                verify="water.tank_l >= 0",
+                note="按人口从储水罐取用生活用水；存量不足时跳过。",
+            ),
+            make_action(
+                id="water.daily.monitor", domain="water", actor="robot",
+                command="monitor", target="community-tank",
+                params={},
+                frequency="daily", priority="low",
+                precondition="",
+                expected_effect="",
+                verify="water.tank_l >= 0",
+                note="巡检储水罐水位与水质，仅监测不改动状态。",
+            ),
+            make_action(
+                id="water.daily.inspect", domain="water", actor="robot",
+                command="inspect", target="rain-harvest",
+                params={},
+                frequency="daily", priority="low",
+                precondition="water.tank_l < 100",
+                expected_effect="",
+                verify="water.tank_l >= 100",
+                note="当储水罐逼近枯竭，专项检查雨水收集与管路；常态下仅监测。",
+            ),
+        ]

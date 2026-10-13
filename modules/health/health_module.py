@@ -17,6 +17,8 @@ module-interface-v1，编排层无需改动。
 import json
 import os
 
+from action_spec import make_action
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
 
@@ -127,3 +129,41 @@ class HealthModule:
             "self_care": self._last["self_care"],
             "loc_factor": self._last["loc_factor"],
         }
+
+    # ------------------------------------------------------------------
+    # 动作层（Stage 6，可选扩展）：人形机器人任务级指令。
+    # 健康缺口无法自产补足——机器人负责监测与提醒，就医由人完成。
+    # ------------------------------------------------------------------
+    def actions(self, plan, context):
+        return [
+            make_action(
+                id="health.daily.monitor", domain="health", actor="robot",
+                command="monitor", target="care-station",
+                params={},
+                frequency="daily", priority="low",
+                precondition="",
+                expected_effect="",
+                verify="health.self_care >= 0",
+                note="监测常备药与自护物资，仅监测不改动状态。",
+            ),
+            make_action(
+                id="health.daily.inspect", domain="health", actor="robot",
+                command="inspect", target="first-aid",
+                params={},
+                frequency="daily", priority="low",
+                precondition="",
+                expected_effect="",
+                verify="health.self_care >= 0.3",
+                note="巡检急救包与在地可及性，仅监测不改动状态。",
+            ),
+            make_action(
+                id="health.on_demand.seek_care", domain="health", actor="human",
+                command="seek_care", target="clinic",
+                params={},
+                frequency="on-demand", priority="high",
+                precondition="health.needs_care == True",
+                expected_effect="",
+                verify="",
+                note="当触发就医需求（伤病情形），由人前往就近卫生站；机器人不替代专业医疗。",
+            ),
+        ]

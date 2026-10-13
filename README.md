@@ -33,6 +33,7 @@
 - `lifeline-os/strategy_analyzer.py`：**生存策略分析器**——先分析主人/社区资源画像，推荐最佳生存策略（荒地只是策略之一，目标是让主人实现生存自由）。见 [`docs/example-strategy-report.md`](docs/example-strategy-report.md)
 - `lifeline-os/lifeline.py`：**顶层闭环**（推荐入口）——把"画像 → 策略推荐 → 按画像跑供给模拟 → 生存自由指数"串成一条命令，输出一份完整的**生存自由报告**。荒地只是策略之一。见 [`docs/freedom-index.md`](docs/freedom-index.md)
 - `ROADMAP.md`：项目长期路线（协议层 + 社区实例层，分阶段、可落地）
+- `docs/action-layer.md`：**动作层（Stage 6）**——把"够不够"翻译成人形机器人可执行的**任务级指令**（去哪、干什么、怎么确认），粒度停在任务级、绝不下发运动原语
 - `CONTRIBUTING.md`：怎么 conform 到接口贡献一个新模块
 - `GOVERNANCE.md`：**治理 + 模块准入评审清单 + 范围红线 + 抗捕获护栏**
 - `docs/feasibility.md`：**可行性分析**——为什么"买台机器人≠自给自足"（小A失业场景）
@@ -55,7 +56,9 @@ python lifeline-os/orchestrator.py                # 只跑供给层闭环（自�
 python lifeline-os/orchestrator.py --lang en      # 英文社区报告
 python lifeline-os/contract.py                     # 协议一致性校验：校验 modules/ 下全部模块（或传单个目录）
 python lifeline-os/i18n.py --check                 # 检查 en/es 是否补全了全部中文键
-python -m unittest discover -s tests -t . -v       # 跑单元测试（含契约一致性 + 多语言测试）
+python lifeline-os/orchestrator.py --execute       # 生成机器人动作计划并跑参考执行器（Stage 6）
+python lifeline-os/executor.py --plan lifeline-os/last-action-plan.json   # 单独跑参考执行器
+python -m unittest discover -s tests -t . -v       # 跑单元测试（契约一致性 + 多语言 + 动作层）
 ```
 `lifeline.py` 跑完会输出一份**生存自由报告**（画像 + 推荐策略 + 各域自给模拟 + 自由指数），可用 `--lang` 切换语言。把 `modules/*/data/` 换成真实数据、把 `examples/profiles/*.json` 换成你的画像再跑，即得专属报告。
 每次 push / PR 会自动在 Python 3.11/3.12/3.13 上跑闭环 **和** 单元测试（见 `.github/workflows/smoke.yml`）。

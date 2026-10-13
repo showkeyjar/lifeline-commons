@@ -98,6 +98,26 @@
 
 ---
 
+## 阶段 6 — 动作层（机器人可执行指令）（已完成 ✅）
+
+**目标**：把"供给模拟只能回答够不够"推进到"能指导人形机器人行动"——让符合接口 v1 的模块除了报自给率，还能吐出**任务级**指令：去哪、干什么、干完怎么确认。
+
+- ✅ [`action_spec.py`](action_spec.py)：动作层核心规范与参考实现——动作 schema（`make_action` / `validate_action` / `validate_plan`）、**任务级命令白名单 + 运动原语黑名单（粒度红线）**、世界状态与状态表达式求值（`eval_condition` / `apply_effect`，解析与求值分离）、`default_operational_state` 演示初值、`expand_schedule` 30 天排程展开。
+- ✅ [`lifeline-os/executor.py`](lifeline-os/executor.py)：参考机器人执行器——续航门槛 → 前置门控 → 施加效果 → 扣电 → 验收；`execute_plan`（30 天值守 / `once` 单次两种模式）；按域汇总；CLI 写 `last-execution-log.json`。
+- ✅ 5 个供给模块（food/energy/water/shelter/health）各加**可选** `actions(plan, context)` 方法，返回任务级指令（共 17 条：含 on-demand 的 `request_help` / `shed_load` / `repair` / `seek_care`）。
+- ✅ 编排器（`orchestrator.py`）/ 顶层闭环（`lifeline.py`）：供给结果 → `collect_action_plan` 汇集 → 生成 `last-action-plan.json` / `.md`（多语言）；新增 `--execute` 直接驱动参考执行器。闭环返回签名升级为 6 元组 `(module_id, module, needs, plan, delivery, context)` 以贯通动作层。
+- ✅ 契约检查器（`contract.py`）新增"动作规范（可选）"项：实现了 `actions()` 则校验其合规，未实现则报 `·`（skip），**向后兼容**。
+- ✅ 多语言：i18n 新增约 34 个动作层键（zh/en/es 三语对齐，`i18n.py --check` 通过）。
+- ✅ 测试：`tests/test_actions.py` 守护良构性、粒度红线（运动原语一律拒绝）、执行器门控与验收、契约动作检查；全量 **52 个测试通过**。
+- ✅ CI（`smoke.yml`）新增"生成机器人动作计划 + 跑参考执行器"步骤。
+- ✅ [`docs/action-layer.md`](docs/action-layer.md) 新增动作层说明；[`docs/module-interface-v1.md`](docs/module-interface-v1.md) 补 §10 动作层扩展。
+
+**判定完成**：`python lifeline-os/orchestrator.py --execute` 产出 17 条任务级指令并以参考执行器模拟 30 天值守（成功 / 跳过 / 验收失败全统计，验收失败为 0）；`make_action` 在构造期拒绝任何运动原语，粒度红线由测试永久守护。
+
+**边界**：动作层只规定"要达成什么任务"，运动规划（怎么迈腿、怎么抓握、怎么避障）是机器人自身控制器的职责；本项目不下发任何运动原语，也不做任何交易/售卖逻辑。
+
+---
+
 ## 阶段 5 — 抗捕获与可持续
 
 **目标**：让"公地"长期不被重新私有化、不断粮。详见 [`docs/commercialization.md`](docs/commercialization.md)。
