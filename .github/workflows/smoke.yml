@@ -37,3 +37,6 @@ jobs:
 
       - name: Run unit tests (contract conformance + coverage sanity + integration + i18n)
         run: python -m unittest discover -s tests -t . -v
+
+      - name: Sustainability guardrails (Stage 5 — anti-capture / license / fork resistance)
+        run: python -m unittest tests.test_sustainability -v

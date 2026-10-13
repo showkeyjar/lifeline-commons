@@ -118,17 +118,18 @@
 
 ---
 
-## 阶段 5 — 抗捕获与可持续
+## 阶段 5 — 抗捕获与可持续（已完成 ✅）
 
-**目标**：让"公地"长期不被重新私有化、不断粮。详见 [`docs/commercialization.md`](docs/commercialization.md)。
+**目标**：让"公地"长期不被重新私有化、不断粮。详见 [`docs/commercialization.md`](docs/commercialization.md) 与 [`GOVERNANCE.md`](GOVERNANCE.md)。
 
-- **定位纪律**：公益/公地是核心与目的；商业化是给公地输血的边缘手段，不可反客为主、不可圈地。
-- **明确排除电力交易**：能源模块只算社区自身自给覆盖率，不做余电上网/电价套利/虚拟电厂。
-- 资金模型：付费部署+交叉补贴 / 认证硬件套件 / 托管监测(自托管免费) / 资助与影响力投资，避免单一资助方绑架方向。
-- 许可证执行：AGPL + 反圈地条款的实际落地与监控。
-- Fork 抗性：治理去中心化，关键决策不依赖单点个人。
+- ✅ **定位纪律**：公益/公地是核心与目的；商业化是给公地输血的边缘手段，不可反客为主、不可圈地（见 commercialization.md §1）。
+- ✅ **明确排除电力交易**：能源模块只算社区自身自给覆盖率，不做余电上网/电价套利/虚拟电厂（commercialization.md §1 / GOVERNANCE §4 红线 2）。
+- ✅ **资金模型（抗捕获设计）**：[`docs/commercialization.md` §4](docs/commercialization.md) 把 6 个商业点组织成 **A 服务与硬件 / B 托管与认证 / C 资助与影响力** 三类收入组合，并落地护栏——单一来源 **>33% 观察、>50% 强制治理复核**、核心免费基线（自托管永久免费）、透明年度核算、收益反哺公地、公益优先定价。目标不是最大化收入，而是"公地在没有单一金主、没有单点关键人的情况下也能持续演进"。
+- ✅ **许可证执行（AGPL + 反圈地 + 监控）**：`LICENSE` 已是 AGPL-3.0 并带**反圈地条款**；由 `tests/test_sustainability.py` 守护（CI 红即说明条款被删改）。
+- ✅ **Fork 抗性（治理去中心 + 具体路由）**：[`GOVERNANCE.md` §5](GOVERNANCE.md) 写明硬规则——高门槛 PR **须 ≥2 名维护者独立批准**、维护者名单公开且最少 2 人、单维护者状态为临时过渡；新增 [`.github/CODEOWNERS`](.github/CODEOWNERS) 把核心文件（`LICENSE` / `GOVERNANCE.md` / `contract.py` / 接口文档 / `action_spec.py`）路由到维护者评审。
+- ✅ **护栏测试 + CI**：`tests/test_sustainability.py`（8 用例）守护许可证/反圈地/治理 Fork 抗性/CODEOWNERS/资金模型；`smoke.yml` 新增 "Sustainability guardrails" 步骤，CI 三版本（3.11/3.12/3.13）全跑。
 
-**判定完成**：项目能在无单一资助方、无单点关键人的情况下持续演进，且核心永不圈地。
+**判定完成**：全套 **60 个测试通过**；许可证与反圈地条款被测试守护、Fork 抗性规则与 CODEOWNERS 已落地、资金模型含单一来源阈值护栏；项目能在无单一资助方、无单点关键人的情况下持续演进，且核心永不圈地。
 
 ---
 

@@ -1,0 +1,21 @@
+# CODEOWNERS —— 抗捕获 / Fork 抗性 的具体审查路由
+#
+# 作用：核心文件被改动时，GitHub 自动请求维护者评审，避免单点个人静默合并高门槛变更。
+# 规则来源：GOVERNANCE.md §5（决策去中心：高门槛 PR 需 ≥2 名维护者批准）。
+#
+# 维护者名单公开、最少 2 人、可增可替（见 GOVERNANCE §1 / §5）。
+# 新增维护者：经共识推举后，在此文件追加其 GitHub 句柄即可。
+#
+# 当前维护者（临时过渡期——若仅 1 人，高门槛 PR 须引入 ≥1 名外部评议人，见 GOVERNANCE §5）：
+*       @showkeyjar
+
+# 核心治理与协议文件：改动即触发维护者评审（反圈地、接口、契约）
+/LICENSE                         @showkeyjar
+/GOVERNANCE.md                    @showkeyjar
+/docs/module-interface-v1.md      @showkeyjar
+/docs/en/module-interface-v1.md   @showkeyjar
+/lifeline-os/contract.py          @showkeyjar
+
+# 动作层规范（Stage 6）：接口语义，破坏性变更需 2/3 多数
+/action_spec.py                   @showkeyjar
+/docs/action-layer.md             @showkeyjar
