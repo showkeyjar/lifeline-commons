@@ -25,6 +25,7 @@
 - `CONTRIBUTING.md`：怎么 conform 到接口贡献一个新模块
 - `docs/feasibility.md`：**可行性分析**——为什么"买台机器人≠自给自足"（小A失业场景）
 - `docs/blueprint.md`：**项目蓝图**——把零散设想整理成可落地设计（小A荒地案例串起四层）
+- `docs/floor-options.md`：**托底反思**——荒地方案是最优托底吗？与现金底/基础服务的对比
 - `docs/commercialization.md`：**商业化边界**——公益优先、核心不圈地、明确排除电力交易
 
 ## 怎么跑
