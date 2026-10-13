@@ -283,7 +283,7 @@ def _demand_value(needs, mid):
 
 
 if __name__ == "__main__":
-    lang = "zh"
+    lang = "en"
     args = sys.argv[1:]
     do_execute = "--execute" in args
     if "--lang" in args:

@@ -87,7 +87,7 @@ class TestLifelineLoop(unittest.TestCase):
 
     def test_lifeline_main_demo_runs(self):
         ll = _load_lifeline()
-        report = ll.main([])
+        report = ll.main(["--lang", "zh"])  # 显式指定中文，不依赖全局默认语言
         self.assertIn("生存自由报告", report)
         self.assertIn("推荐策略", report)
         self.assertIn("生存自由指数", report)
@@ -100,7 +100,7 @@ class TestLifelineLoop(unittest.TestCase):
                 continue
             with open(os.path.join(prof_dir, fn), "r", encoding="utf-8") as f:
                 profile = json.load(f)
-            report = ll.main(["--profile", os.path.join(prof_dir, fn)])
+            report = ll.main(["--profile", os.path.join(prof_dir, fn), "--lang", "zh"])
             self.assertIn("生存自由报告", report, f"{fn} 未产出报告")
             self.assertIn("资产规模系数", report, f"{fn} 缺资产系数")
 

@@ -1,100 +1,110 @@
-# 生命线公地 · Lifeline Commons
+# Lifeline Commons
 
-一句话：**不做跟巨头比谁机器人更强的项目，而是做一套开放的"生存供给协议 + 一个小而真的社区实例"，专门服务大公司懒得管的角落——让"不绑定巨头"这个选项真实存在。**
+One line: **Not a project that races the giants to build a better robot — but an open "survival-supply protocol + one small, real community instance", serving the corners big companies can't be bothered with, so that the option of "not being tied to the giants" actually exists.**
 
-## 语言 / Languages
+> 🌐 This README is in **English** — the project's default language. **[中文版 / Chinese](README.zh.md)**
 
-本项目的**工具与文档**支持多语言（当前：中文 `zh`、English `en`、Español `es`）：
+## Languages
 
-- 运行报告可切换语言：`python lifeline-os/lifeline.py --lang en`（或 `es`）。详见 [`docs/i18n.md`](docs/i18n.md)。
-- 本文档的英文版：[`README.en.md`](README.en.md)；接口规范的英文版：[`docs/en/module-interface-v1.md`](docs/en/module-interface-v1.md)。
-- 想新增一种语言？照 [`docs/i18n.md`](docs/i18n.md) 在 `lifeline-os/i18n.py` 的 `CATALOG` 里加一个键即可——缺失键会自动回退中文，不会让报告开天窗。
+The project's **tools and docs** are multilingual (currently: 中文 `zh`, English `en`, Español `es`); **English is the default** and Chinese is the fallback for any missing key.
 
-## 这是个啥
-- 开源项目。目标是让普通人最基本的生存供给（食物、能源、住所、健康…）能被社区自己掌握，而不是只能从少数巨头手里拿。
-- 我们不造万能机器人。我们造**协议**（模块怎么互操作、社区怎么治理）+ **一个跑得起来的小实例**。
+- Run reports in another language: `python lifeline-os/lifeline.py --lang zh` (or `es`). See [`docs/i18n.md`](docs/i18n.md).
+- Chinese version of this README: [`README.zh.md`](README.zh.md); English version of the interface spec: [`docs/en/module-interface-v1.md`](docs/en/module-interface-v1.md).
+- Want to add a language? Follow [`docs/i18n.md`](docs/i18n.md) and add one key to the `CATALOG` in `lifeline-os/i18n.py` — any missing key falls back to Chinese automatically, so reports never go blank.
 
-## 常见误区（先看这个）
-- ❌ "小A失业后买台智能机器人就足够活下去" —— **不成立**。详见 [`docs/feasibility.md`](docs/feasibility.md)：社会的技术"做得到" ≠ 一台可购买的机器人会替你种粮发电 ≠ 它能被造出来并卖给你。机器人做的是便利劳动，不是生计生产；它不开闭环，仍要钱养。
-- ✅ 本项目要解决的，是"无需收入也能被供给"的**生计公地**，不是某台机器。机器人只是里面降本的工具。
+## What is this
 
-## 你到底怎么用（三步上手）
+- An open-source project. The goal: let ordinary people's most basic survival supplies (food, energy, shelter, health…) be held by their own community, instead of only obtainable from a handful of giants.
+- We don't build a universal robot. We build a **protocol** (how modules interoperate, how communities govern) + **one runnable small instance**.
 
-先把一句话说死：**Lifeline Commons 不是一个能双击打开的 App，也不是一台机器人。** 它是一个跑在你自己电脑上的开源工具包——你给它一份"资源画像"，它帮你算清"靠你手里的资源能不能活、怎么活、差在哪"，并且能顺手生成一份**机器人照着干就行的活儿清单**。
+## Common misconceptions (read this first)
 
-下面三个场景对应三种人，挑跟你相关的看：
+- ❌ "Once unemployed, Xiao A just buys a smart robot and that's enough to survive" — **false**. See [`docs/feasibility.md`](docs/feasibility.md): the fact that society *can* do something ≠ a purchasable robot will grow your food and generate your power for you ≠ it can be built and sold to you. A robot does convenience labor, not livelihood production; it doesn't close the loop and still needs money to maintain.
+- ✅ What this project solves is a **livelihood commons** of "being supplied without needing income" — not a particular machine. The robot is only a cost-reduction tool inside it.
 
-### 场景 A：我想知道"我 / 我的社区能不能靠自己活下去"
-1. 抄一份最接近你的画像：打开 `examples/profiles/`（里面有 `xiao_a_rural` 乡村有地小A、`urban_landless_unemployed` 城市无地失业、`urban_skilled_remote` 城市有技能远程三个样例）。
-2. 跑一条命令：
+## How do I actually use this (3-step quickstart)
+
+One sentence up front: **Lifeline Commons is not an app you double-click open, and it is not a robot.** It's an open-source toolkit that runs on your own computer — you hand it a "resource profile", and it figures out "can I survive on what I have, how, and where are the gaps", and it can also hand you a **task list a robot can just follow**.
+
+Three scenarios for three kinds of people — read the one that fits you:
+
+### Scenario A: I want to know "can I / my community survive on our own?"
+1. Copy the sample profile closest to you: open `examples/profiles/` (`xiao_a_rural` rural-with-land Xiao A, `urban_landless_unemployed` urban landless unemployed, `urban_skilled_remote` urban skilled remote).
+2. Run one command:
    ```bash
    python lifeline-os/lifeline.py --profile examples/profiles/xiao_a_rural.json
    ```
-3. 读报告：它会给你**推荐策略** + 食物/能源/水/住所/健康五个域的**自给覆盖率** + 一个综合的"生存自由指数"，并**诚实标出短板**（比如"健康覆盖只有 0.65，是现实更大的短板"）。
-   - 想算你自己的真实账？把 `modules/*/data/` 下的样例数据换成你社区的真实数据，再把画像换成你的，重跑即可。
+3. Read the report: it gives you a **recommended strategy** + **self-sufficiency coverage** for the five domains (food / energy / water / shelter / health) + a composite **survival-freedom index**, and **honestly flags the weak spots** (e.g. "health coverage is only 0.65, the bigger real-world gap").
+   - Want your own real numbers? Swap the sample data under `modules/*/data/` for your community's real data, change the profile to yours, re-run.
 
-### 场景 B：我想给机器人一份能干的活儿清单（Stage 6 动作层）
-1. 跑：
+### Scenario B: I want to give a robot a task list it can actually do (Stage 6 Action Layer)
+1. Run:
    ```bash
    python lifeline-os/orchestrator.py --execute
    ```
-2. 它吐出 `lifeline-os/last-action-plan.json`——**17 条任务级指令**（去哪、干什么、干完怎么确认），例如"水罐不满就抽水补满""库存低于阈值就收割补给""设备坏了就报修"。
-3. 这份 JSON 交给机器人的**机载控制器**去读（本地文件、内网、U 盘都行）。机器人只认"任务"——怎么迈腿、怎么抓握、怎么避障是它自己底层控制器的事。**本项目绝不下发运动原语**，所以宇树、波士顿动力、任何厂家的机器人都能接。
-   - ⚠️ 划重点：**机器人不访问 git。** git 是给开发者协作用的。真实流程是——**你（运营者）在电脑上生成计划 → 把 JSON 交给机器人**，而不是让机器人自己去 clone 仓库、拉计划。
+2. It emits `lifeline-os/last-action-plan.json` — **17 task-level commands** (where to go, what to do, how to confirm), e.g. "if the water tank isn't full, pump to refill", "if inventory drops below threshold, harvest to resupply", "if equipment breaks, report for repair".
+3. Hand this JSON to the robot's **onboard controller** to read (local file, LAN, USB stick — any of them). The robot only sees "tasks" — how to step, how to grasp, how to avoid obstacles is its own low-level controller's job. **This project never emits motion primitives**, so Unitree, Boston Dynamics, any vendor's robot can plug in.
+   - ⚠️ Key point: **the robot does not touch git.** git is for developers collaborating. The real flow is — **you (the operator) generate the plan on your computer → hand the JSON to the robot**, not "let the robot clone the repo and pull the plan".
 
-### 场景 C：我是开发者，想加一个供给模块（比如"医疗""交通"）
-→ 照 `docs/module-interface-v1.md` 写一个满足 6 个方法的模块，丢进 `modules/<你的域>/`，跑 `python lifeline-os/contract.py` 全绿，就被自动发现、自动接入了。
+### Scenario C: I'm a developer who wants to add a supply module (e.g. "medical", "transport")
+→ Follow `docs/en/module-interface-v1.md` to write a module with the 6 required methods, drop it in `modules/<your-domain>/`, run `python lifeline-os/contract.py` — all green means it's auto-discovered and plugged in.
 
-## 三层结构
+## Three layers
+
 ```
-治理 / 公地层   规则 · 反圈地 · 社区决策
-编排层 Lifeline OS   感知 → 调度 → 供给 的闭环
-供给模块层   食物 / 能源 / 水 / 住所 / 健康 …… 各自独立、可插拔、可替换
+Governance / Commons layer   rules · anti-enclosure · community decisions
+Orchestration layer Lifeline OS   perceive → schedule → supply loop
+Supply-module layer   food / energy / water / shelter / health … independent, pluggable, replaceable
 ```
 
-## 项目里有什么（速览，按需查阅，不是必读）
+## What's in the project (quick reference, read on demand)
 
-> 上面三段"你到底怎么用"已经够上手了。下面是物件清单，写代码或贡献模块时再回来查。
+> The three "how do I actually use this" sections above are enough to get started. The list below is an inventory — come back to it when writing code or contributing a module.
 
-- `docs/module-interface-v1.md`：供给模块必须实现的**稳定接口**（实现可以换，接口留住）。这是项目的核心持久资产，也是中立协议的载体
-- `modules/food`、`modules/energy`、`modules/water`、`modules/shelter`、`modules/health`：食物 / 能源 / 水 / **住所** / **基础健康**模块的**数据驱动**参考实现（各 30 天自给模拟，算覆盖率，纯自给不交易）。`shelter` 与 `health` 都是"仅凭接口文档就能写出可插拔模块"的扩展样板
-- `lifeline-os`：编排骨架（**自动发现**模块 + 接口契约校验），把模块跑起来，并生成**社区自给评估报告**（见 [`docs/example-report.md`](docs/example-report.md)）。报告支持多语言（`--lang`）
-- `lifeline-os/contract.py`：**协议一致性校验器**——任何第三方写完模块，跑它全绿即通过契约、可被自动发现接入（查结构 / 行为 / health 一致性 / 防硬编码 / 响应性）
-- `lifeline-os/strategy_analyzer.py`：**生存策略分析器**——先分析主人/社区资源画像，推荐最佳生存策略（荒地只是策略之一，目标是让主人实现生存自由）。见 [`docs/example-strategy-report.md`](docs/example-strategy-report.md)
-- `lifeline-os/lifeline.py`：**顶层闭环**（推荐入口）——把"画像 → 策略推荐 → 按画像跑供给模拟 → 生存自由指数"串成一条命令，输出一份完整的**生存自由报告**。荒地只是策略之一。见 [`docs/freedom-index.md`](docs/freedom-index.md)
-- `ROADMAP.md`：项目长期路线（协议层 + 社区实例层，分阶段、可落地）
-- `docs/action-layer.md`：**动作层（Stage 6）**——把"够不够"翻译成人形机器人可执行的**任务级指令**（去哪、干什么、怎么确认），粒度停在任务级、绝不下发运动原语
-- `CONTRIBUTING.md`：怎么 conform 到接口贡献一个新模块
-- `GOVERNANCE.md`：**治理 + 模块准入评审清单 + 范围红线 + 抗捕获护栏**
-- `docs/feasibility.md`：**可行性分析**——为什么"买台机器人≠自给自足"（小A失业场景）
-- `docs/blueprint.md`：**项目蓝图**——把零散设想整理成可落地设计（小A荒地案例串起四层）
-- `docs/community-playbook.md`：**自愿社区启动清单**——把蓝图案例变成可复制部署剧本（含诚实门槛）
-- `docs/floor-options.md`：**托底反思**——荒地方案是最优托底吗？与现金底/基础服务的对比
-- `docs/commercialization.md`：**商业化边界**——公益优先、核心不圈地、明确排除电力交易
-- `tests/`：**单元测试**（契约合规 + 覆盖率自洽），守护接口不被破坏
+- `docs/module-interface-v1.md`: the **stable interface** every supply module must implement (implementations can change; the interface stays). This is the project's core durable asset and the carrier of the neutral protocol.
+- `modules/food`, `modules/energy`, `modules/water`, `modules/shelter`, `modules/health`: **data-driven** reference implementations of food / energy / water / **shelter** / **basic health** (each a 30-day self-sufficiency simulation, computing coverage; pure self-sufficiency, no trading). `shelter` and `health` are extension templates proving "a pluggable module can be written from the interface doc alone".
+- `lifeline-os`: the orchestration skeleton (**auto-discovery** of modules + interface-contract checks) that runs the modules and produces a **community self-sufficiency report** (see [`docs/example-report.md`](docs/example-report.md)). Reports are multilingual (`--lang`).
+- `lifeline-os/contract.py`: the **protocol conformance checker** — any third party who finishes a module runs it; all green means the contract passes and the module can be auto-discovered and plugged in (checks structure / behavior / health consistency / anti-hardcoding / responsiveness).
+- `lifeline-os/strategy_analyzer.py`: the **survival-strategy analyzer** — first analyze the owner's / community's resource profile, then recommend the best survival strategy (wasteland is only one strategy among many; the goal is the owner's survival-freedom). See [`docs/example-strategy-report.md`](docs/example-strategy-report.md).
+- `lifeline-os/lifeline.py`: the **top-level closed loop** (recommended entry) — chaining "profile → strategy recommendation → profile-driven supply simulation → survival-freedom index" into one command, outputting a complete **survival-freedom report**. Wasteland is only one strategy. See [`docs/freedom-index.md`](docs/freedom-index.md).
+- `ROADMAP.md`: the long-term roadmap (protocol layer + community-instance layer, staged and actionable).
+- `docs/action-layer.md`: the **Action Layer (Stage 6)** — translates "is there enough" into **task-level commands** a humanoid robot can execute (where to go, what to do, how to confirm); granularity stops at the task level, never emits motion primitives.
+- `CONTRIBUTING.md`: how to conform to the interface and contribute a new module.
+- `GOVERNANCE.md`: **governance + module-admission checklist + scope red lines + anti-capture guardrails**.
+- `docs/feasibility.md`: **feasibility analysis** — why "buy a robot ≠ self-sufficiency" (Xiao A unemployment scenario).
+- `docs/blueprint.md`: **project blueprint** — turning scattered ideas into an actionable design (the Xiao A wasteland case stringing the four layers together).
+- `docs/community-playbook.md`: **voluntary-community startup checklist** — turning the blueprint case into a replicable deployment playbook (with honest thresholds).
+- `docs/floor-options.md`: **floor reflection** — is the wasteland plan the best floor? vs. cash floor / basic services.
+- `docs/commercialization.md`: **commercialization boundaries** — public good first, core not enclosed, power trading explicitly excluded.
+- `tests/`: **unit tests** (contract conformance + coverage self-consistency), guarding the interface from breakage.
 
-## 怎么跑
+## How to run
+
 ```
-python lifeline-os/lifeline.py                                  # 顶层闭环：内置小A画像 → 生存自由报告（推荐入口，中文）
-python lifeline-os/lifeline.py --lang en                         # 同一报告，英文
-python lifeline-os/lifeline.py --lang es                         # 同一报告，西班牙文
-python lifeline-os/lifeline.py --profile examples/profiles/xiao_a_rural.json        # 读画像文件
-python lifeline-os/lifeline.py --profile your_profile.json --out report.md          # 写文件
-python lifeline-os/strategy_analyzer.py           # 只跑策略分析（想单独看策略推荐时用）
-python lifeline-os/strategy_analyzer.py --lang en # 英文策略报告
-python lifeline-os/orchestrator.py                # 只跑供给层闭环（自动发现 + 契约校验）+ 社区自给评估报告
-python lifeline-os/orchestrator.py --lang en      # 英文社区报告
-python lifeline-os/contract.py                     # 协议一致性校验：校验 modules/ 下全部模块（或传单个目录）
-python lifeline-os/i18n.py --check                 # 检查 en/es 是否补全了全部中文键
-python lifeline-os/orchestrator.py --execute       # 生成机器人动作计划并跑参考执行器（Stage 6）
-python lifeline-os/executor.py --plan lifeline-os/last-action-plan.json   # 单独跑参考执行器
-python -m unittest discover -s tests -t . -v       # 跑单元测试（契约一致性 + 多语言 + 动作层）
+python lifeline-os/lifeline.py                                  # top-level loop: built-in Xiao A profile → survival-freedom report (recommended entry, Chinese)
+python lifeline-os/lifeline.py --lang en                         # same report, English
+python lifeline-os/lifeline.py --lang es                         # same report, Spanish
+python lifeline-os/lifeline.py --profile examples/profiles/xiao_a_rural.json        # read a profile file
+python lifeline-os/lifeline.py --profile your_profile.json --out report.md          # write to file
+python lifeline-os/strategy_analyzer.py           # strategy analysis only
+python lifeline-os/strategy_analyzer.py --lang en # English strategy report
+python lifeline-os/orchestrator.py                # supply-layer loop only (auto-discovery + contract check) + community self-sufficiency report
+python lifeline-os/orchestrator.py --lang en      # English community report
+python lifeline-os/contract.py                     # protocol conformance check: all modules under modules/ (or pass a single dir)
+python lifeline-os/i18n.py --check                 # check that en/es cover all Chinese keys
+python lifeline-os/orchestrator.py --execute       # generate the robot action plan and run the reference executor (Stage 6)
+python lifeline-os/executor.py --plan lifeline-os/last-action-plan.json   # run the reference executor standalone
+python -m unittest discover -s tests -t . -v       # run unit tests (contract conformance + i18n + action layer)
 ```
-`lifeline.py` 跑完会输出一份**生存自由报告**（画像 + 推荐策略 + 各域自给模拟 + 自由指数），可用 `--lang` 切换语言。把 `modules/*/data/` 换成真实数据、把 `examples/profiles/*.json` 换成你的画像再跑，即得专属报告。
-每次 push / PR 会自动在 Python 3.11/3.12/3.13 上跑闭环 **和** 单元测试（见 `.github/workflows/smoke.yml`）。
 
-## 许可证
-AGPL-3.0（强 copyleft + 反圈地）。详见 `LICENSE`。
+`lifeline.py` outputs a **survival-freedom report** (profile + recommended strategies + per-domain simulation + freedom index), with `--lang` to switch language. Replace `modules/*/data/` with real data and `examples/profiles/*.json` with your profile, then re-run to get your own report.
+
+Every push / PR automatically runs the loop **and** unit tests on Python 3.11/3.12/3.13 (see `.github/workflows/smoke.yml`).
+
+## License
+
+AGPL-3.0 (strong copyleft + anti-enclosure). See `LICENSE`.
 
 ---
-想参与？从 `CONTRIBUTING.md` 和一个你关心的供给模块开始。
+
+Want to join? Start from `CONTRIBUTING.md` and a supply module you care about.

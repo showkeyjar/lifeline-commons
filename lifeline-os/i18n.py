@@ -25,7 +25,7 @@ CLI
 import sys
 
 SUPPORTED = ("zh", "en", "es")
-DEFAULT_LANG = "zh"
+DEFAULT_LANG = "en"
 _CURRENT = {"lang": DEFAULT_LANG}
 
 # 源语言（zh）拥有全部键；en/es 必须覆盖同样的键集合（--check 会校验）。

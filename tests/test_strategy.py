@@ -18,7 +18,8 @@ class TestStrategyAnalyzer(unittest.TestCase):
         # analyze 返回翻译键，而非成品文案（渲染层按语言翻译）
         self.assertEqual(scored[0][4], "distributed")
         self.assertEqual(scored[0][0], "strat.distributed.name")
-        # 中文渲染下，首选策略名应出现
+        # 中文渲染下，首选策略名应出现（显式指定语言，不依赖全局默认）
+        sa.i18n.set_language("zh")
         report = sa.render_report(p, scored)
         self.assertIn("分布式自给", report)
 
@@ -28,7 +29,8 @@ class TestStrategyAnalyzer(unittest.TestCase):
         scored = sa.analyze(p)
         self.assertEqual(scored[0][4], "external_floor")
         self.assertEqual(scored[0][1], 100)
-        # 诚实边界应包含"帮不了"
+        # 诚实边界应包含"帮不了"（显式指定语言，不依赖全局默认）
+        sa.i18n.set_language("zh")
         report = sa.render_report(p, scored)
         self.assertIn("帮不了", report)
 

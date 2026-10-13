@@ -274,7 +274,7 @@ def main(argv=None):
     argv = argv if argv is not None else sys.argv[1:]
     profile = _demo_profile()
     out_path = None
-    lang = "zh"
+    lang = "en"
     do_execute = False
 
     i = 0
