@@ -20,7 +20,7 @@
 ## 现在有什么
 - `docs/module-interface-v1.md`：供给模块必须实现的**稳定接口**（实现可以换，接口留住）
 - `modules/food`、`modules/energy`、`modules/water`：食物 / 能源 / 水模块的**数据驱动**参考实现（各 30 天自给模拟，算覆盖率，纯自给不交易）
-- `lifeline-os`：编排骨架（**自动发现**模块 + 接口契约校验），把模块跑起来
+- `lifeline-os`：编排骨架（**自动发现**模块 + 接口契约校验），把模块跑起来，并生成**社区自给评估报告**（见 [`docs/example-report.md`](docs/example-report.md)）
 - `ROADMAP.md`：项目长期路线（协议层 + 社区实例层，分阶段、可落地）
 - `CONTRIBUTING.md`：怎么 conform 到接口贡献一个新模块
 - `GOVERNANCE.md`：**治理 + 模块准入评审清单 + 范围红线 + 抗捕获护栏**
@@ -33,9 +33,10 @@
 
 ## 怎么跑
 ```
-python lifeline-os/orchestrator.py          # 跑闭环（自动发现 + 契约校验）
+python lifeline-os/orchestrator.py          # 跑闭环（自动发现 + 契约校验）+ 生成社区自给评估报告
 python -m unittest discover -s tests -t . -v # 跑单元测试
 ```
+跑完会生成 `lifeline-os/last-report.md`——一份人读的自给率报告，社区可据此判断「我们退可守吗」。把 `modules/*/data/` 换成真实数据再跑即得专属报告。
 每次 push / PR 会自动在 Python 3.11/3.12/3.13 上跑闭环 **和** 单元测试（见 `.github/workflows/smoke.yml`）。
 
 ## 许可证
