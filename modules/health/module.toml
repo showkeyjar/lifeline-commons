@@ -1,0 +1,6 @@
+name = "basic-health-security"
+version = "1.0.0"
+interface = "module-interface-v1"
+provides = ["basic-health-security"]
+description = "基础健康安全评估（第 5 插槽）：自护能力 × 在地可及性的第一阶代理指标。粗粒度、非医疗建议。"
+maintainer = "lifeline-commons"

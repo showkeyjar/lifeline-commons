@@ -83,6 +83,21 @@
 
 ---
 
+## 阶段 4.5 — 多语言化（已完成 ✅）
+
+**目标**：把"中立协议 + 社区实例"真正做成**多国语言**——工具报告与文档都不限于中文，让非中文社区也能用、也能贡献。
+
+- ✅ [`lifeline-os/i18n.py`](https://github.com/showkeyjar/lifeline-commons/blob/main/lifeline-os/i18n.py)：零依赖多语言内核，集中全部面向人字符串的三语目录（中文 `zh` / English `en` / Español `es`）；提供 `set_language / t() / --check`；缺失键自动回退中文、绝不空屏。
+- ✅ 三个报告生成器（`lifeline.py` / `strategy_analyzer.py` / `orchestrator.py`）全部接上 `t()`，新增 `--lang en|es` 参数；策略名/介入/自由度/自由指数分档/边界说明/表头全翻译；用户数据里的地点(`乡村/城市…`)、健康(`良好/受限`)分类值也随语言切换。
+- ✅ 新增 [`modules/health`](https://github.com/showkeyjar/lifeline-commons/blob/main/modules/health) 基础健康模块（**第 5 插槽**），建模"自护能力 × 在地可及性"的第一阶代理指标，conform v1、消费 `asset_scale` 与画像，被自动发现并纳入自由指数与多语言报告。
+- ✅ 多语言文档：英文门面 [`README.en.md`](README.en.md)、英文接口规范 [`docs/en/module-interface-v1.md`](docs/en/module-interface-v1.md)、新增 [`docs/i18n.md`](docs/i18n.md) 说清"如何新增语言（代码 + 文档）"。
+- ✅ 测试：`tests/test_i18n.py` 守护 en/es 键完整性、t() 占位符与回退、语言切换、health 经契约通过、报告中无未翻译键泄漏；全套 **40 个测试通过**。
+- ✅ `--check` 自检纳入日常；CI（`smoke.yml`）已加入运行 `i18n.py --check`。
+
+**判定完成**：同一份画像，`--lang zh/en/es` 输出三语报告；新增语言只需在 `CATALOG` 加一个键。
+
+---
+
 ## 阶段 5 — 抗捕获与可持续
 
 **目标**：让"公地"长期不被重新私有化、不断粮。详见 [`docs/commercialization.md`](docs/commercialization.md)。

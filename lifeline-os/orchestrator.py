@@ -18,18 +18,22 @@ import importlib
 import os
 import sys
 
-# 让项目根目录可被导入（modules / lifeline_os 都在根下）
-ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+# 让项目根目录与同目录可被导入（modules 在根下；i18n 在同目录）
+LIFELINE_OS_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.join(LIFELINE_OS_DIR, "..")
 sys.path.insert(0, ROOT)
+if LIFELINE_OS_DIR not in sys.path:
+    sys.path.insert(0, LIFELINE_OS_DIR)
+import i18n  # noqa: E402  多语言：所有面向人的字符串走 t()
 
 MODULES_DIR = os.path.join(ROOT, "modules")
-REPORT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "last-report.md")
+REPORT_PATH = os.path.join(LIFELINE_OS_DIR, "last-report.md")
 
 # 接口契约：一个合规模块必须实现的 6 个方法（详见 docs/module-interface-v1.md）
 REQUIRED_METHODS = ["name", "provides", "assess_needs", "schedule", "provide", "status"]
 
-# 各域的「日均需求」可读单位（用于报告）
-NEED_UNITS = {"energy": "kWh/天", "food": "餐/天", "water": "L/天", "shelter": "人"}
+# 各域的「日均需求」可读单位（用于报告；也可经 i18n 的 unit.<domain> 取多语言版）
+NEED_UNITS = {"energy": "kWh/天", "food": "餐/天", "water": "L/天", "shelter": "人", "health": "人"}
 
 
 def _conforms(klass):
@@ -57,7 +61,7 @@ def discover_modules():
         try:
             pkg = importlib.import_module(f"modules.{entry}.{entry}_module")
         except Exception as e:
-            print(f"[Lifeline OS] 跳过模块 {entry}: 导入失败 ({e})")
+            print(f"[Lifeline OS] {i18n.t('oc.skip_import', entry=entry, err=e)}")
             continue
         target = f"{entry}module"
         klass = None
@@ -67,11 +71,11 @@ def discover_modules():
                 klass = obj
                 break
         if klass is None:
-            print(f"[Lifeline OS] 跳过模块 {entry}: 未找到 {entry.capitalize()}Module 类")
+            print(f"[Lifeline OS] {i18n.t('oc.skip_class', entry=entry, cls=entry.capitalize() + 'Module')}")
             continue
         missing = _conforms(klass)
         if missing:
-            print(f"[Lifeline OS] 跳过模块 {entry}: 接口契约缺失 {missing}")
+            print(f"[Lifeline OS] {i18n.t('oc.skip_contract', entry=entry, missing=missing)}")
             continue
         found.append((entry, klass))
     return found
@@ -83,29 +87,29 @@ def _weakest_day(module):
     if not last or not last.get("daily"):
         return "—"
     weak = min(last["daily"], key=lambda x: x["coverage"])
-    return f"第 {weak['day']} 天 ({weak['coverage']:.2f})"
+    return i18n.t("weak.day", d=weak["day"], c=f"{weak['coverage']:.2f}")
 
 
 def run_loop(module):
-    print(f"[Lifeline OS] 加载模块: {module.name()} (provides={module.provides()})")
+    print(f"[Lifeline OS] {i18n.t('oc.loading')}: {module.name()} ({i18n.t('oc.provides')}={module.provides()})")
 
     # 基准社区画像（demo-village）：默认按"已建立、自有住房"的乡村社区假设，
     # 让住所类模块也有合理输入；真实画像请走 lifeline.py。
     context = {"community": "demo-village", "population": 12,
                "has_land": True, "capital": 2, "location": "乡村"}
     needs = module.assess_needs(context)
-    print(f"  1) 感知需求: {needs}")
+    print(f"  {i18n.t('oc.step1')}: {needs}")
 
     resources = {"available": ["solar", "local-farm", "community-storage", "battery",
                               "rain-harvest", "well", "community-tank"]}
     plan = module.schedule(resources, needs)
-    print(f"  2) 调度资源: {plan}")
+    print(f"  {i18n.t('oc.step2')}: {plan}")
 
     delivery = module.provide(plan)
-    print(f"  3) 供给交付: {delivery}")
+    print(f"  {i18n.t('oc.step3')}: {delivery}")
 
-    print(f"  状态: {module.status()}")
-    print("[Lifeline OS] 闭环完成 ✓")
+    print(f"  {i18n.t('oc.state')}: {module.status()}")
+    print(f"[Lifeline OS] {i18n.t('oc.done')}")
     return module, needs, delivery
 
 
@@ -115,21 +119,22 @@ def generate_report(results):
     results: [(module_id, module_instance, needs, delivery), ...]
     """
     lines = []
-    lines.append("# 社区自给评估报告")
+    lines.append(i18n.t("title.community"))
     lines.append("")
-    lines.append("> 由 Lifeline OS 自动生成 —— 数据驱动 30 天模拟，纯自给视角，不含任何交易逻辑。")
+    lines.append(i18n.t("sub.community"))
     lines.append("")
-    lines.append(f"- **社区**: demo-village")
-    lines.append(f"- **人口**: 12")
-    lines.append(f"- **评估周期**: 30 天")
-    lines.append(f"- **覆盖域**: {', '.join(mid for mid, _, _, _ in results)}")
+    lines.append(f"- **{i18n.t('oc.community')}**: demo-village")
+    lines.append(f"- **{i18n.t('oc.population')}**: 12")
+    lines.append(f"- **{i18n.t('oc.period')}**: 30 {i18n.t('unit.days')}")
+    lines.append(f"- **{i18n.t('oc.domains')}**: {', '.join(i18n.t(f'dom.{mid}') for mid, _, _, _ in results)}")
     lines.append("")
-    lines.append("## 各域自给率")
+    lines.append("## " + i18n.t("sec.domains"))
     lines.append("")
-    lines.append("| 域 | 日均需求 | 平均自给率 | 满供天数 | 缺口天数 | 最弱日 | 健康 |")
+    lines.append(f"| {i18n.t('th.domain')} | {i18n.t('th.demand')} | {i18n.t('th.coverage')} | "
+                 f"{i18n.t('th.full')} | {i18n.t('th.short')} | {i18n.t('th.weak')} | {i18n.t('th.health')} |")
     lines.append("|---|---|---|---|---|---|---|")
     for mid, module, needs, delivery in results:
-        unit = NEED_UNITS.get(mid, "")
+        unit = i18n.t(f"unit.{mid}")
         demand = _demand_value(needs, mid)
         avg = delivery.get("delivered_avg_coverage", 0)
         full = delivery.get("full_days", 0)
@@ -137,26 +142,26 @@ def generate_report(results):
         weak = _weakest_day(module)
         health = delivery.get("health", module.status().get("health", "—"))
         lines.append(
-            f"| {mid} | {demand} {unit} | {avg:.3f} | {full}/30 | {short}/30 | {weak} | {health} |"
+            f"| {i18n.t(f'dom.{mid}')} | {demand} {unit} | {avg:.3f} | {full}/30 | {short}/30 | {weak} | {health} |"
         )
     lines.append("")
-    lines.append("## 综合判断")
+    lines.append("## " + i18n.t("sec.verdict"))
     lines.append("")
     avg_all = sum(d.get("delivered_avg_coverage", 0) for _, _, _, d in results) / max(len(results), 1)
     if avg_all >= 0.95:
-        verdict = "✅ 基本退可守：多数域自给率在高位，仅个别弱日需本地缓冲或微调产能。"
+        verdict = i18n.t("verdict.high")
     elif avg_all >= 0.80:
-        verdict = "⚠️ 部分退可守：存在结构性缺口，需扩容产能或补齐模块后再评估。"
+        verdict = i18n.t("verdict.mid")
     else:
-        verdict = "❌ 暂不可守：自给率偏低，当前配置不足以支撑该社区离网生存。"
-    lines.append(f"- **平均自给率（各域均值）**: {avg_all:.3f}")
-    lines.append(f"- **结论**: {verdict}")
+        verdict = i18n.t("verdict.low")
+    lines.append(f"- **{i18n.t('oc.avg')}**: {avg_all:.3f}")
+    lines.append(f"- **{i18n.t('ff.tier')}**: {verdict}")
     lines.append("")
-    lines.append("## 诚实边界")
+    lines.append("## " + i18n.t("sec.honest"))
     lines.append("")
-    lines.append("- 本报告只评估「物理供给自给率」，不涉及土地产权、启动资本、成员健康与组织力——这些是现实更大的一道坎。")
-    lines.append("- 本项目是**自愿社区**的开源协调工具，不替代政府的现金底 / 基础服务，也帮不了赤贫无地者。")
-    lines.append("- 把 `modules/*/data/` 下的样例换成你们社区的真实数据，重跑即可得到专属报告。")
+    lines.append("- " + i18n.t("cb1"))
+    lines.append("- " + i18n.t("cb2"))
+    lines.append("- " + i18n.t("cb3"))
     lines.append("")
     return "\n".join(lines)
 
@@ -171,15 +176,25 @@ def _demand_value(needs, mid):
         return needs.get("daily_l", "—")
     if mid == "shelter":
         return needs.get("persons_need", "—")
+    if mid == "health":
+        return needs.get("persons_need", "—")
     return "—"
 
 
 if __name__ == "__main__":
+    lang = "zh"
+    args = sys.argv[1:]
+    if "--lang" in args:
+        idx = args.index("--lang")
+        if idx + 1 < len(args):
+            lang = args[idx + 1]
+    i18n.set_language(lang)
+
     modules = discover_modules()
     if not modules:
-        print("[Lifeline OS] 未发现任何供给模块，退出。")
+        print(f"[Lifeline OS] {i18n.t('oc.no_modules')}")
         sys.exit(1)
-    print(f"[Lifeline OS] 发现 {len(modules)} 个供给模块: {[m[0] for m in modules]}")
+    print(f"[Lifeline OS] {i18n.t('oc.found', n=len(modules))}: {[m[0] for m in modules]}")
     print("=" * 48)
 
     results = []
@@ -195,4 +210,4 @@ if __name__ == "__main__":
 
     with open(REPORT_PATH, "w", encoding="utf-8") as f:
         f.write(report + "\n")
-    print(f"\n[Lifeline OS] 报告已写入: {REPORT_PATH}")
+    print(f"\n[Lifeline OS] {i18n.t('oc.report_written')}: {REPORT_PATH}")

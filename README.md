@@ -2,6 +2,14 @@
 
 一句话：**不做跟巨头比谁机器人更强的项目，而是做一套开放的"生存供给协议 + 一个小而真的社区实例"，专门服务大公司懒得管的角落——让"不绑定巨头"这个选项真实存在。**
 
+## 语言 / Languages
+
+本项目的**工具与文档**支持多语言（当前：中文 `zh`、English `en`、Español `es`）：
+
+- 运行报告可切换语言：`python lifeline-os/lifeline.py --lang en`（或 `es`）。详见 [`docs/i18n.md`](docs/i18n.md)。
+- 本文档的英文版：[`README.en.md`](README.en.md)；接口规范的英文版：[`docs/en/module-interface-v1.md`](docs/en/module-interface-v1.md)。
+- 想新增一种语言？照 [`docs/i18n.md`](docs/i18n.md) 在 `lifeline-os/i18n.py` 的 `CATALOG` 里加一个键即可——缺失键会自动回退中文，不会让报告开天窗。
+
 ## 这是个啥
 - 开源项目。目标是让普通人最基本的生存供给（食物、能源、住所、健康…）能被社区自己掌握，而不是只能从少数巨头手里拿。
 - 我们不造万能机器人。我们造**协议**（模块怎么互操作、社区怎么治理）+ **一个跑得起来的小实例**。
@@ -19,8 +27,8 @@
 
 ## 现在有什么
 - `docs/module-interface-v1.md`：供给模块必须实现的**稳定接口**（实现可以换，接口留住）。这是项目的核心持久资产，也是中立协议的载体
-- `modules/food`、`modules/energy`、`modules/water`、`modules/shelter`：食物 / 能源 / 水 / **住所**模块的**数据驱动**参考实现（各 30 天自给模拟，算覆盖率，纯自给不交易）。`shelter` 是"仅凭接口文档就能写出可插拔模块"的扩展样板
-- `lifeline-os`：编排骨架（**自动发现**模块 + 接口契约校验），把模块跑起来，并生成**社区自给评估报告**（见 [`docs/example-report.md`](docs/example-report.md)）
+- `modules/food`、`modules/energy`、`modules/water`、`modules/shelter`、`modules/health`：食物 / 能源 / 水 / **住所** / **基础健康**模块的**数据驱动**参考实现（各 30 天自给模拟，算覆盖率，纯自给不交易）。`shelter` 与 `health` 都是"仅凭接口文档就能写出可插拔模块"的扩展样板
+- `lifeline-os`：编排骨架（**自动发现**模块 + 接口契约校验），把模块跑起来，并生成**社区自给评估报告**（见 [`docs/example-report.md`](docs/example-report.md)）。报告支持多语言（`--lang`）
 - `lifeline-os/contract.py`：**协议一致性校验器**——任何第三方写完模块，跑它全绿即通过契约、可被自动发现接入（查结构 / 行为 / health 一致性 / 防硬编码 / 响应性）
 - `lifeline-os/strategy_analyzer.py`：**生存策略分析器**——先分析主人/社区资源画像，推荐最佳生存策略（荒地只是策略之一，目标是让主人实现生存自由）。见 [`docs/example-strategy-report.md`](docs/example-strategy-report.md)
 - `lifeline-os/lifeline.py`：**顶层闭环**（推荐入口）——把"画像 → 策略推荐 → 按画像跑供给模拟 → 生存自由指数"串成一条命令，输出一份完整的**生存自由报告**。荒地只是策略之一。见 [`docs/freedom-index.md`](docs/freedom-index.md)
@@ -36,15 +44,20 @@
 
 ## 怎么跑
 ```
-python lifeline-os/lifeline.py                                  # 顶层闭环：内置小A画像 → 生存自由报告（推荐入口）
+python lifeline-os/lifeline.py                                  # 顶层闭环：内置小A画像 → 生存自由报告（推荐入口，中文）
+python lifeline-os/lifeline.py --lang en                         # 同一报告，英文
+python lifeline-os/lifeline.py --lang es                         # 同一报告，西班牙文
 python lifeline-os/lifeline.py --profile examples/profiles/xiao_a_rural.json        # 读画像文件
 python lifeline-os/lifeline.py --profile your_profile.json --out report.md          # 写文件
 python lifeline-os/strategy_analyzer.py           # 只跑策略分析（想单独看策略推荐时用）
+python lifeline-os/strategy_analyzer.py --lang en # 英文策略报告
 python lifeline-os/orchestrator.py                # 只跑供给层闭环（自动发现 + 契约校验）+ 社区自给评估报告
+python lifeline-os/orchestrator.py --lang en      # 英文社区报告
 python lifeline-os/contract.py                     # 协议一致性校验：校验 modules/ 下全部模块（或传单个目录）
-python -m unittest discover -s tests -t . -v       # 跑单元测试（含契约一致性测试）
+python lifeline-os/i18n.py --check                 # 检查 en/es 是否补全了全部中文键
+python -m unittest discover -s tests -t . -v       # 跑单元测试（含契约一致性 + 多语言测试）
 ```
-`lifeline.py` 跑完会输出一份**生存自由报告**（画像 + 推荐策略 + 各域自给模拟 + 自由指数）。把 `modules/*/data/` 换成真实数据、把 `examples/profiles/*.json` 换成你的画像再跑，即得专属报告。
+`lifeline.py` 跑完会输出一份**生存自由报告**（画像 + 推荐策略 + 各域自给模拟 + 自由指数），可用 `--lang` 切换语言。把 `modules/*/data/` 换成真实数据、把 `examples/profiles/*.json` 换成你的画像再跑，即得专属报告。
 每次 push / PR 会自动在 Python 3.11/3.12/3.13 上跑闭环 **和** 单元测试（见 `.github/workflows/smoke.yml`）。
 
 ## 许可证

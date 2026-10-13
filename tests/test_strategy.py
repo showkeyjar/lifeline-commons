@@ -15,7 +15,12 @@ class TestStrategyAnalyzer(unittest.TestCase):
         p = sa._demo_profile()
         scored = sa.analyze(p)
         self.assertGreaterEqual(scored[0][1], 40)  # 首选应有实质匹配
-        self.assertEqual(scored[0][0], "分布式自给（荒地/集体土地自建）")
+        # analyze 返回翻译键，而非成品文案（渲染层按语言翻译）
+        self.assertEqual(scored[0][4], "distributed")
+        self.assertEqual(scored[0][0], "strat.distributed.name")
+        # 中文渲染下，首选策略名应出现
+        report = sa.render_report(p, scored)
+        self.assertIn("分布式自给", report)
 
     def test_landless_destitute_falls_to_external_floor(self):
         p = {"has_land": False, "capital": 0, "skills": [], "location": "城市",

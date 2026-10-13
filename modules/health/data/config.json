@@ -1,0 +1,12 @@
+{
+  "population": 1,
+  "horizon_days": 30,
+  "self_care_base": 0.30,
+  "self_care_medical_skill": 0.90,
+  "self_care_capital_2": 0.65,
+  "self_care_capital_1": 0.45,
+  "self_care_per_scale": 0.12,
+  "loc_factor": {"乡村": 0.5, "离网": 0.5, "郊区": 0.7, "城市": 0.9},
+  "loc_default": 0.6,
+  "loc_weight": 0.3
+}

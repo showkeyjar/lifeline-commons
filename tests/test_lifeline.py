@@ -89,7 +89,7 @@ class TestLifelineLoop(unittest.TestCase):
         ll = _load_lifeline()
         report = ll.main([])
         self.assertIn("生存自由报告", report)
-        self.assertIn("推荐生存策略", report)
+        self.assertIn("推荐策略", report)
         self.assertIn("生存自由指数", report)
 
     def test_example_profiles_run(self):

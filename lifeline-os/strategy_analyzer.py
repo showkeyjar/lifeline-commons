@@ -15,7 +15,14 @@
 """
 
 import json
+import os
 import sys
+
+# 让同目录的 i18n 可被导入（多语言）
+LIFELINE_OS_DIR = os.path.dirname(os.path.abspath(__file__))
+if LIFELINE_OS_DIR not in sys.path:
+    sys.path.insert(0, LIFELINE_OS_DIR)
+import i18n  # noqa: E402  多语言：所有面向人的字符串走 t()
 
 # 画像字段约定（缺省按"最受限"处理，宁可不夸大）：
 #   has_land:    bool            是否有可用土地（自有/长租/承包）
@@ -118,92 +125,109 @@ def _score_external_floor(p):
 STRATEGIES = [
     {
         "key": "distributed",
-        "name": "分布式自给（荒地/集体土地自建）",
+        "name_key": "strat.distributed.name",
         "score": _score_distributed,
-        "intervention": "✅ 本项目介入：协调层 + 治理 + 数据驱动规划（energy/food/water 模块）",
-        "freedom": "高（若成功落地）",
+        "intervention_key": "strat.distributed.intervention",
+        "freedom_key": "strat.distributed.freedom",
     },
     {
         "key": "urban_collective",
-        "name": "城市社区协作（共享空间+分工+半市场）",
+        "name_key": "strat.urban_collective.name",
         "score": _score_urban_collective,
-        "intervention": "✅ 本项目介入：协调层（城市版模块）+ 治理",
-        "freedom": "中",
+        "intervention_key": "strat.urban_collective.intervention",
+        "freedom_key": "strat.urban_collective.freedom",
     },
     {
         "key": "semi_self",
-        "name": "半自给+基础缓冲（以降开销为主）",
+        "name_key": "strat.semi_self.name",
         "score": _score_semi_self_sufficient,
-        "intervention": "✅ 本项目介入：规划工具（算你能降多少开销/建多少缓冲）",
-        "freedom": "中（降低对市场的依赖）",
+        "intervention_key": "strat.semi_self.intervention",
+        "freedom_key": "strat.semi_self.freedom",
     },
     {
         "key": "relocate",
-        "name": "低成本地区迁移（搬去生存成本极低的地区）",
+        "name_key": "strat.relocate.name",
         "score": _score_relocate,
-        "intervention": "⚠️ 本项目不介入执行，仅提供信息与规划辅助",
-        "freedom": "中高",
+        "intervention_key": "strat.relocate.intervention",
+        "freedom_key": "strat.relocate.freedom",
     },
     {
         "key": "skill_buffer",
-        "name": "技能变现+小缓冲（手艺/远程工作覆盖开销+建缓冲）",
+        "name_key": "strat.skill_buffer.name",
         "score": _score_skill_buffer,
-        "intervention": "❌ 本项目不介入，主人自行；可规划缓冲目标",
-        "freedom": "中高",
+        "intervention_key": "strat.skill_buffer.intervention",
+        "freedom_key": "strat.skill_buffer.freedom",
     },
     {
         "key": "external_floor",
-        "name": "依赖外部托底（政府/慈善）",
+        "name_key": "strat.external_floor.name",
         "score": _score_external_floor,
-        "intervention": "❌ 本项目帮不了——这类人只能靠政府现金底/基础服务",
-        "freedom": "取决于公共政策",
+        "intervention_key": "strat.external_floor.intervention",
+        "freedom_key": "strat.external_floor.freedom",
     },
 ]
 
 
 def analyze(profile):
-    """返回按匹配度降序的策略列表：[(name, score, intervention, freedom), ...]。"""
+    """返回按匹配度降序的策略列表：[(name_key, score, intervention_key, freedom_key, key), ...]。
+
+    返回的是**翻译键**而非成品文案；渲染时再按当前语言翻译（见 render_report）。
+    """
     scored = []
     for st in STRATEGIES:
         sc = st["score"](profile)
-        scored.append((st["name"], sc, st["intervention"], st["freedom"], st["key"]))
+        scored.append((st["name_key"], sc, st["intervention_key"], st["freedom_key"], st["key"]))
     scored.sort(key=lambda x: x[1], reverse=True)
     return scored
 
 
+def _bool(v):
+    return i18n.t("bool.true") if v else i18n.t("bool.false")
+
+
+def _cat(prefix, value):
+    """翻译用户数据里的可选分类值（如地点/健康）；中文保持原值，未登记的值原样返回。"""
+    if value is None:
+        return ""
+    if i18n.get_language() == "zh":
+        return value
+    out = i18n.t(f"{prefix}.{value}")
+    return value if out.startswith(f"{prefix}.") else out
+
+
 def render_report(profile, scored):
     lines = []
-    lines.append("# 生存策略分析报告")
+    lines.append(i18n.t("title.strategy"))
     lines.append("")
-    lines.append("> 由 Lifeline OS 策略分析器生成 —— 先分析画像，再决定路径。荒地只是策略之一。")
+    lines.append(i18n.t("sub.strategy"))
     lines.append("")
-    lines.append("## 主人/社区画像")
+    lines.append("## " + i18n.t("sec.profile"))
     lines.append("")
-    lines.append(f"- 是否有地：{profile.get('has_land')}")
-    lines.append(f"- 启动资本（0-3）：{profile.get('capital')}")
-    lines.append(f"- 技能：{', '.join(profile.get('skills', [])) or '无'}")
-    lines.append(f"- 所在地：{profile.get('location')}")
-    lines.append(f"- 人数：{profile.get('household')}")
-    lines.append(f"- 健康：{profile.get('health')}")
-    lines.append(f"- 可迁移：{profile.get('mobility')}")
+    lines.append(f"- {i18n.t('prof.has_land')}：{_bool(profile.get('has_land'))}")
+    lines.append(f"- {i18n.t('prof.capital')}：{profile.get('capital')}")
+    lines.append(f"- {i18n.t('prof.skills')}：{', '.join(profile.get('skills', [])) or i18n.t('prof.none')}")
+    lines.append(f"- {i18n.t('prof.location')}：{_cat('loc', profile.get('location'))}")
+    lines.append(f"- {i18n.t('prof.household_short')}：{profile.get('household')}")
+    lines.append(f"- {i18n.t('prof.health')}：{_cat('health', profile.get('health'))}")
+    lines.append(f"- {i18n.t('prof.mobility')}：{_bool(profile.get('mobility'))}")
     lines.append("")
-    lines.append("## 推荐策略（按匹配度）")
+    lines.append("## " + i18n.t("sec.strategies"))
     lines.append("")
     top = scored[0]
-    for i, (name, sc, intervention, freedom, key) in enumerate(scored, 1):
-        mark = " ← 首选" if i == 1 and sc >= 40 else ""
-        lines.append(f"{i}. **{name}** — 匹配 {sc}/100{mark}")
-        lines.append(f"   - {intervention}")
-        lines.append(f"   - 预计生存自由度：{freedom}")
+    for i, (name_key, sc, intervention_key, freedom_key, key) in enumerate(scored, 1):
+        mark = i18n.t("r.recommended") if i == 1 and sc >= 40 else ""
+        lines.append(f"{i}. **{i18n.t(name_key)}** — {i18n.t('r.match')} {sc}/100{mark}")
+        lines.append(f"   - {i18n.t(intervention_key)}")
+        lines.append(f"   - {i18n.t('r.exp_freedom')}：{i18n.t(freedom_key)}")
     lines.append("")
-    lines.append("## 诚实边界")
+    lines.append("## " + i18n.t("sec.honest"))
     lines.append("")
     if top[4] == "external_floor" and top[1] >= 100:
-        lines.append("- ⚠️ 当前画像下，务实路径是**依赖外部托底**——本项目（社区自组织）帮不了无地、无资本、无可变现技能的人。请优先争取政府现金底 / 基础服务。")
+        lines.append("- " + i18n.t("honest.external"))
     else:
-        lines.append("- 本分析器只「建议」，决策权与执行权留在主人与社区手里。")
-        lines.append("- 若首选策略是「分布式自给」，才需要走拿地/开荒那一步；其他策略不涉及地。")
-        lines.append("- 本项目是**自愿社区**的开源协调工具，不替代政府、不交付机器人、不解决人生意义。")
+        lines.append("- " + i18n.t("honest.tool"))
+        lines.append("- " + i18n.t("honest.land"))
+        lines.append("- " + i18n.t("honest.gov"))
     lines.append("")
     return "\n".join(lines)
 
@@ -223,8 +247,19 @@ def _demo_profile():
 
 if __name__ == "__main__":
     profile = _demo_profile()
-    if len(sys.argv) > 2 and sys.argv[1] == "--profile":
-        with open(sys.argv[2], "r", encoding="utf-8") as f:
-            profile = json.load(f)
+    lang = "zh"
+    i = 1
+    while i < len(sys.argv):
+        a = sys.argv[i]
+        if a == "--profile" and i + 1 < len(sys.argv):
+            with open(sys.argv[i + 1], "r", encoding="utf-8") as f:
+                profile = json.load(f)
+            i += 2
+        elif a == "--lang" and i + 1 < len(sys.argv):
+            lang = sys.argv[i + 1]
+            i += 2
+        else:
+            i += 1
+    i18n.set_language(lang)
     scored = analyze(profile)
     print(render_report(profile, scored))

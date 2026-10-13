@@ -22,11 +22,15 @@ jobs:
       - name: Run protocol conformance validator (contract.py)
         run: python lifeline-os/contract.py
 
+      - name: Check i18n key completeness (zh -> en/es)
+        run: python lifeline-os/i18n.py --check
+
       - name: Run top-level closed loop (profile -> strategy -> simulation -> freedom index)
         run: |
           python lifeline-os/lifeline.py
+          python lifeline-os/lifeline.py --lang en
           python lifeline-os/lifeline.py --profile examples/profiles/urban_landless_unemployed.json
           python lifeline-os/lifeline.py --profile examples/profiles/urban_skilled_remote.json
 
-      - name: Run unit tests (contract conformance + coverage sanity + integration)
+      - name: Run unit tests (contract conformance + coverage sanity + integration + i18n)
         run: python -m unittest discover -s tests -t . -v
