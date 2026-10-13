@@ -15,16 +15,19 @@
 
 ## 现在有什么
 - `docs/module-interface-v1.md`：供给模块必须实现的**稳定接口**（实现可以换，接口留住）
-- `modules/food`：食物模块的薄参考实现（先模拟跑通闭环）
-- `lifeline-os`：编排骨架，把模块跑起来
+- `modules/food`、`modules/energy`：食物 / 能源模块的薄参考实现（先模拟跑通闭环）
+- `lifeline-os`：编排骨架（**自动发现**模块 + 接口契约校验），把模块跑起来
+- `ROADMAP.md`：项目长期路线（协议层 + 社区实例层，分阶段、可落地）
+- `CONTRIBUTING.md`：怎么 conform 到接口贡献一个新模块
 
 ## 怎么跑
 ```
 python lifeline-os/orchestrator.py
 ```
+每次 push / PR 会自动在 Python 3.11/3.12/3.13 上跑闭环（见 `.github/workflows/smoke.yml`）。
 
 ## 许可证
 AGPL-3.0（强 copyleft + 反圈地）。详见 `LICENSE`。
 
 ---
-想参与？从 `modules/food` 或一个你关心的供给模块开始。
+想参与？从 `CONTRIBUTING.md` 和一个你关心的供给模块开始。
