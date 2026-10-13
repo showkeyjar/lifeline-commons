@@ -1,0 +1,5 @@
+{
+  "storage_capacity_meals": 150,
+  "initial_meals": 50,
+  "min_reserve_meals": 20
+}
