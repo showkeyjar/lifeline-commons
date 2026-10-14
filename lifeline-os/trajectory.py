@@ -6,8 +6,10 @@
 诚实建模原则
 ------------
 - 能源（光伏）/ 水（集雨+储水罐）建设周期短（数周），建成当月即计入。
-- **食物有"收获滞后"**：种地当月不产粮，按北京物候首个收获季约在种植后 5 个月，
-  且首季产量按 30% / 60% / 100% 三阶爬坡（幼苗 → 成熟），第 9 月起满产。
+- **食物有"收获滞后"**：种地当月不产粮，首收时间取决于生长季长度（由画像气候
+  `frost_free_days` 推导）：北方单熟约种植后 5 个月首收、三阶爬坡；南方长生长季可早种、
+  一年多熟，约 3 个月首收、更快满产，且年度总产更高（有余粮）。这正是对比"南北食物瓶颈"
+  的关键——南方食物自给更早达成。
 - 建设时序可由画像 `build_plan` 覆盖；缺省使用 `DEFAULT_BUILD_PLAN`（保守估计，
   假设由 IT 远程收入资助，契合 skill_buffer 60）。
 
@@ -38,10 +40,13 @@ import lifeline  # noqa: E402
 import i18n  # noqa: E402
 
 
-# 收获滞后（月）：种植后经过这么久才首次计入食物产出
-HARVEST_LAG = 5
-# 首季三阶爬坡系数（对应 HARVEST_LAG 之后的前几个月）
-RAMP = (0.3, 0.6, 1.0)
+# 食物收获参数不再写死——由 _food_params(climate) 按生长季长度推导，区分南北。
+# 短生长季（北方，~190 天）：单熟春种秋收，首收晚、爬坡慢。
+# 长生长季（南方，~330+ 天）：可早种、一年多熟，首收早、爬坡快，年度总产更高（余粮）。
+# 以下常量仅作函数内缺省参考，不直接参与计算。
+_NORTH_LAG = 5
+_NORTH_RAMP = (0.3, 0.6, 1.0)
+_MULTI_CROP_MAX = 1.25  # 长生长季年度多熟带来余粮系数的上限（clamp）
 
 # 缺省建设时序：从零装备出发，按"先种地 → 集雨 → 光伏"的保守顺序。
 # 每个里程碑的 build 是写进画像 assets 的字段增量（仅作资产"可用性"开关，
@@ -54,6 +59,28 @@ DEFAULT_BUILD_PLAN = [
     {"month": 3, "build": {"solar_kw": 5, "battery_kwh": 10},
      "note": "装小规模光伏（约 5kW）+ 储能（约 10kWh）"},
 ]
+
+
+def _food_params(climate):
+    """从生长季长度推导食物收获参数（诚实区分南北）。
+
+    短生长季（北方，~190 天 frost_free_days）：单熟春种秋收，首收晚、爬坡慢。
+    长生长季（南方，~330+ 天）：可早种、一年多熟，首收早、爬坡快，年度总产更高（余粮）。
+    climate 缺省按偏北（200 天）处理，保证无 climate 字段时向后兼容旧行为。
+    """
+    ffd = (climate or {}).get("frost_free_days")
+    if not isinstance(ffd, (int, float)):
+        ffd = 200  # 缺省：偏北，兼容无 climate 字段的画像
+    # 生长季因子：150 天（单熟受限）→ 0；330 天（可多熟）→ 1
+    season = max(0.0, min(1.0, (ffd - 150) / (330 - 150)))
+    if season >= 0.5:
+        lag = 3
+        ramp = (0.5, 1.0)
+    else:
+        lag = 5
+        ramp = (0.3, 0.6, 1.0)
+    multi_crop = 1.0 + 0.25 * season  # 长生长季年度多熟 → 余粮系数（≤1.25）
+    return lag, ramp, multi_crop
 
 
 def _assets_for_month(base_assets, plan, month):
@@ -91,6 +118,7 @@ def project_trajectory(profile, scored, asset_scale, profile_ctx, months=12):
     plan = profile.get("build_plan") or DEFAULT_BUILD_PLAN
     top = scored[0]
     population = profile.get("household", 1)
+    food_lag, food_ramp, food_mc = _food_params(profile.get("climate"))
     plant = _plant_month(base_assets, plan, months)
 
     series = []
@@ -105,13 +133,16 @@ def project_trajectory(profile, scored, asset_scale, profile_ctx, months=12):
         for mid, _module, _needs, _plan, delivery, _ctx in results:
             cov[mid] = float(delivery.get("delivered_avg_coverage", 0.0))
 
-        # 食物收获滞后：种植后 HARVEST_LAG 个月内为生长期（不产粮），随后三阶爬坡
+        # 食物收获滞后：种植后 food_lag 个月内为生长期（不产粮），随后按 food_ramp 爬坡；
+        # 长生长季另乘多熟余粮系数 food_mc（clamp 到 1.2，代表有余粮可储存/补缺口）。
         if plant is not None and "local-farm" in (avail or []) and m >= plant:
-            k = m - (plant + HARVEST_LAG)
+            k = m - (plant + food_lag)
             if k < 0:
                 cov["food"] = 0.0
-            elif 0 <= k < len(RAMP):
-                cov["food"] = round(cov.get("food", 0.0) * RAMP[k], 3)
+            elif 0 <= k < len(food_ramp):
+                cov["food"] = round(min(1.2, cov.get("food", 0.0) * food_ramp[k] * food_mc), 3)
+            else:
+                cov["food"] = round(min(1.2, cov.get("food", 0.0) * food_mc), 3)
 
         allcov = list(cov.values())
         avg = (sum(allcov) / len(allcov)) if allcov else 0.0
@@ -128,6 +159,7 @@ def project_trajectory(profile, scored, asset_scale, profile_ctx, months=12):
     return {
         "series": series,
         "plant_month": plant,
+        "food_lag": food_lag,
         "t0_avg": series[0]["avg"],
         "plan": plan,
     }
@@ -169,7 +201,7 @@ def render_trajectory_md(traj, lang="en"):
         )
 
     lines.append("")
-    lines.append(i18n.t("traj.food_lag"))
+    lines.append(i18n.t("traj.food_lag", lag=traj.get("food_lag", 5)))
     lines.append("")
     last = series[-1]
     lines.append(i18n.t("traj.climb",

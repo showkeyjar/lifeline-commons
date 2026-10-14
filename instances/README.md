@@ -32,19 +32,22 @@ instances/
 |---|---|---|---|
 | [`beijing-suburb-baseline/`](beijing-suburb-baseline/) | 北京郊区 | 郊区家庭·极限示范（零装备起点） | 4 人 / 4 亩地 / 资本档 1 / 仅 IT 技能 / 零能源·储水装备——模型诚实显示供给地板仅 29%（能源/食物/水=0），仍给出 65 分半自给路 + 60 分远程收入杠杆；叠加 12 个月建设轨迹模拟后，**自给率从 29% 爬升至 86%、自由指数 54→82.5** |
 | [`beijing-suburb-equipped/`](beijing-suburb-equipped/) | 北京郊区 | 郊区家庭·条件稍好（对照） | 同 baseline 同一家庭，**唯一变量** = 资本档 2 + 已备基础装备（5kW 光伏/10kWh 储能/井/2 吨储水/50㎡ 大棚）——起点即从 29% 跳到 **74%**，第 12 月 **94%**，早 2 个月越过 80%；与 baseline 的并排对比见 [`compare.md`](beijing-suburb-equipped/compare.md) |
+| [`guangzhou-south-baseline/`](guangzhou-south-baseline/) | 广州郊区 | 郊区家庭·极限示范（南方气候对照） | 与 beijing-suburb-baseline **完全相同的家庭条件**，**唯一变量 = 气候**（华南长生长季，NASA POWER 真实数据）——食物滞后仅 3 个月、第 5 月即达 90%，把"食物瓶颈更短"变成可模拟的数字；三实例并排对比见 [`compare.md`](guangzhou-south-baseline/compare.md) |
 
 > 欢迎贡献你自己的真实实例（匿名或署名均可）。每个数字都要能在 `SOURCES.md` 复核。
 
 ## 多实例对比（让"条件更好的人看到希望"）
 
 模拟器最有说服力的形态，是把若干实例的建设轨迹**叠成一张并排曲线**——让条件更好的人
-直接看到：仅因"提前备好基础装备"，起点就高出一个台阶。
+直接看到两件事：① 仅因"提前备好基础装备"，起点就高出一个台阶；② 仅因"生活在南方长生长季"，
+食物瓶颈就短 3 个月、末月更高（纯地理红利，钱买不来）。
 
 ```bash
-# 把两个（或更多）实例叠在一起对比：
+# 把多个实例叠在一起对比（任意数量）：
 python lifeline-os/lifeline.py --compare \
     instances/beijing-suburb-baseline/profile.json \
-    instances/beijing-suburb-equipped/profile.json
+    instances/beijing-suburb-equipped/profile.json \
+    instances/guangzhou-south-baseline/profile.json
 # 对比报告会单独写 compare.md（与 --out 同目录）
 ```
 

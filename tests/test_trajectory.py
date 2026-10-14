@@ -3,12 +3,14 @@
 要点：
 - 第 0 月（地板）自给率应明显偏低；
 - 第 12 月（走完桥）自给率应大幅爬升；
-- 食物必须有「收获滞后」——种地当月（第 1 月）不产粮，第 6-8 月三阶爬坡；
+- 食物必须有「收获滞后」——种地当月（第 1 月）不产粮，按生长季长度决定首收与爬坡
+  （北方第 6-8 月三阶，南方更快）；稳态接近或略超满产（长生长季年度多熟有余粮）；
 - 资产随时间逐步解锁（第 0 月无装备，第 12 月有光伏/农地/集雨）。
 """
 
 import os
 import sys
+import json
 import unittest
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -77,12 +79,12 @@ class TestTrajectory(unittest.TestCase):
     def test_food_harvest_lag(self):
         # 第 1 月已种地但仍是生长期，食物覆盖率必须为 0
         self.assertEqual(self.t["series"][1]["cov"].get("food", 1.0), 0.0)
-        # 第 6-8 月应处于三阶爬坡（< 满产），第 9 月起满产
+        # 北方：第 6-8 月处于三阶爬坡（< 满产），第 9 月起稳态满产（可略超，代表余粮）
         food6 = self.t["series"][6]["cov"].get("food", 0.0)
         food9 = self.t["series"][9]["cov"].get("food", 0.0)
         self.assertGreater(food6, 0.0)
         self.assertLess(food6, food9)
-        self.assertAlmostEqual(food9, 1.0, delta=0.05)
+        self.assertGreaterEqual(food9, 0.95)
 
     def test_assets_unlock_over_time(self):
         # 第 0 月无装备；第 12 月应有光伏/农地/集雨
@@ -102,6 +104,54 @@ class TestTrajectory(unittest.TestCase):
         md = traj.render_trajectory_md(self.t, lang="zh")
         self.assertIn("## 6.", md)
         self.assertIn("|", md)
+
+
+class TestFoodClimate(unittest.TestCase):
+    """守护「食物参数依赖生长季长度」——这是南北对比诚实性的根基。"""
+
+    def test_food_params_north(self):
+        lag, ramp, mc = traj._food_params({"frost_free_days": 190})
+        self.assertEqual(lag, 5)
+        self.assertEqual(ramp, (0.3, 0.6, 1.0))
+        self.assertAlmostEqual(
+            mc, 1.0 + 0.25 * max(0.0, min(1.0, (190 - 150) / 180)), places=4
+        )
+
+    def test_food_params_south(self):
+        lag, ramp, mc = traj._food_params({"frost_free_days": 350})
+        self.assertEqual(lag, 3)
+        self.assertEqual(ramp, (0.5, 1.0))
+        self.assertAlmostEqual(mc, 1.25, places=4)
+
+    def test_food_params_default_is_north(self):
+        # 缺省（无 climate 字段）按偏北处理，保证旧画像 / 测试向后兼容
+        lag, ramp, mc = traj._food_params({})
+        self.assertEqual(lag, 5)
+        self.assertEqual(ramp, (0.3, 0.6, 1.0))
+
+    def test_south_food_full_earlier_than_north(self):
+        # 广州（南方）零装备 vs 北京（北方）零装备：食物应更早达到 ≥80%
+        base = os.path.join(os.path.dirname(__file__), "..", "instances")
+        guang = json.load(
+            open(os.path.join(base, "guangzhou-south-baseline", "profile.json"), encoding="utf-8")
+        )
+        beijing = json.load(
+            open(os.path.join(base, "beijing-suburb-baseline", "profile.json"), encoding="utf-8")
+        )
+
+        def first_food_full(prof):
+            scored, asset_scale, ctx = lifeline.prepare(prof)
+            t = traj.project_trajectory(prof, scored, asset_scale, ctx, 12)
+            for row in t["series"]:
+                if row["cov"].get("food", 0) >= 0.8:
+                    return row["month"]
+            return None
+
+        g = first_food_full(guang)
+        b = first_food_full(beijing)
+        self.assertIsNotNone(g)
+        self.assertIsNotNone(b)
+        self.assertLess(g, b)  # 南方食物更早满产 → 瓶颈更短
 
 
 if __name__ == "__main__":

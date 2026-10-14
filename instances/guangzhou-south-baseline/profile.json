@@ -1,0 +1,60 @@
+{
+  "_meta": {
+    "name": "广州郊区·极限自给示范（零装备·南方气候对照）",
+    "location": "广州郊区（代表气象点 23.13°N, 113.26°E，海拔 22.07 m；NASA POWER 25 年气候平均 2001–2025）",
+    "instance_type": "郊区家庭·极限示范（零装备·南方长生长季对照）",
+    "author": "匿名贡献者（极限示范）",
+    "collected_on": "2026-10-14",
+    "notes": "本实例与北京郊区极限示范（beijing-suburb-baseline）刻意保持**完全相同的家庭条件**（4 人、4 亩地、资本档 1、IT 技能、零装备、不想搬家），唯一变量是**气候**——广州属华南长生长季，无霜期近全年、年降雨为北京 3.2 倍。目的是用干净的单变量 A/B 证明：即便什么都不多买，仅仅'出生/生活在南方'，食物瓶颈就会显著更短。气候为 NASA POWER 真实数据；其它资产均自报真实（无=0）。"
+  },
+
+  "household": 4,
+  "has_land": true,
+  "land_area_m2": 2666.7,
+  "capital": 1,
+  "location": "郊区",
+  "skills": ["IT"],
+  "health": "良好",
+  "mobility": true,
+  "relocation_willingness": false,
+
+  "climate": {
+    "solar_kwh_per_m2_day": 3.766,
+    "rainfall_mm_year": 1730.0,
+    "avg_temp_c": 22.61,
+    "frost_free_days": 350
+  },
+
+  "assets": {
+    "solar_kw": 0,
+    "battery_kwh": 0,
+    "wind_kw": null,
+    "water_storage_l": 0,
+    "well": false,
+    "rainwater_harvesting": false,
+    "greenhouse_m2": 0,
+    "livestock": []
+  },
+
+  "sources": {
+    "household": "实际同住并一起吃饭的人头（自报）= 4（与北京实例一致，单变量对照）",
+    "land_area_m2": "自报 4 亩；1 亩 = 666.67 m² → 2666.7 m²（与北京实例一致）",
+    "capital": "自评 1 档（与北京实例一致）",
+    "skills": "自报 IT（与北京实例一致）。模型技能词典仍不含'IT'——IT 远程变现潜力被低估，详见 SOURCES 末条与 notes.md",
+    "location": "广州郊区（自报）",
+    "health": "自报：良好（与北京实例一致）",
+    "mobility": "自报：能自由撤离（灾害韧性）；relocation_willingness=false 表示'不想搬家'，故 relocate 策略得 0 分，semi_self 为首选（与北京实例一致）",
+    "relocation_willingness": "自报意图：false（本示范目的就是在自家地上建自给）",
+    "solar_kwh_per_m2_day": "NASA POWER ALLSKY_SFC_SW_DWN 25 年气候年均（23.13°N,113.26°E）= 3.766 kWh/m²/天（北京 3.953，南方因多云略低约 5%）",
+    "rainfall_mm_year": "NASA POWER PRECTOTCORR 年均 4.74 mm/天 × 365 ≈ 1730 mm/年（北京 533，南方为其 **3.2 倍**）",
+    "avg_temp_c": "NASA POWER T2M 25 年气候年均 = 22.61 °C（北京 11.61，南方高约 11°C）",
+    "frost_free_days": "广州月均温最低 1 月也有 13.96°C，全年无霜；农气参考约 340–350 天，本档案保守取 **350 天**（标注：近似，华南基本全年可种，偶发低温不影响主茬）。这是与北京（190 天）决定'食物瓶颈长短'的核心变量",
+    "solar_kw": "无光伏，填 0（与北京实例一致）",
+    "battery_kwh": "无储能电池，填 0",
+    "water_storage_l": "无水箱 / 水塔，填 0",
+    "well": "无井，false",
+    "rainwater_harvesting": "无集雨，false",
+    "greenhouse_m2": "无大棚，0",
+    "livestock": "无牲畜，空列表"
+  }
+}

@@ -227,7 +227,7 @@ CATALOG = {
 
         # ---- 建设轨迹模拟（情景轨迹）----
         "sec.trajectory": "建设轨迹模拟（12 个月）",
-        "traj.intro": "> 从今天的地板出发，按真实建设时序建起装备，自给率逐月爬升。能源/水建设周期短（数周），当月即计入；**食物需等一季收获**，种植后约第 6 个月才开始计入并三阶爬坡。",
+        "traj.intro": "> 从今天的地板出发，按真实建设时序建起装备，自给率逐月爬升。能源/水建设周期短（数周），建成当月即计入；**食物需等一季收获**——种植后需经过生长期（北方约 5–6 个月首收、南方长生长季约 3–4 个月），这是真实物候，不是模型缺陷。",
         "traj.today": "当下（第 0 月）",
         "traj.month": "第 {m} 月",
         "traj.th_energy": "能源",
@@ -235,7 +235,7 @@ CATALOG = {
         "traj.th_water": "水",
         "traj.th_avg": "平均自给率",
         "traj.th_freedom": "自由指数",
-        "traj.food_lag": "⚠️ 食物滞后：第 1–5 月为生长期（不产粮），第 6–8 月三阶爬坡（0.3/0.6/1.0），第 9 月起满产。",
+        "traj.food_lag": "⚠️ 食物滞后：种植后约 **{lag}** 个月首次收获，此前食物覆盖为 0；首季产量按物候爬坡至满产。长生长季（南方）可早种、多熟，余粮更高（最高 1.2×）。",
         "traj.assumption": "假设：建设由 IT 远程收入资助（契合 skill_buffer 60），时序为保守估计；落地请以你的真实进度替换。",
         "cmp.title": "多实例对比 · 建设轨迹",
         "cmp.intro": "把同一家庭、不同起点的实例叠在一起：起点越高（已备装备 / 资本更足），曲线从第一天就站上更高台阶；但无论起点，食物生长季都是共同的长周期瓶颈。",
@@ -250,8 +250,9 @@ CATALOG = {
         "cmp.month": "月份",
         "cmp.today": "今日",
         "cmp.narr_gap": "第 0 月起点：{min0}% → {max0}%（差距 {gap} 个百分点）。",
-        "cmp.narr_conv": "无论起点如何，所有实例约第 {m80} 月前后越过 80% 自给——食物生长季是共同的长周期瓶颈。",
+        "cmp.narr_conv": "越过 80% 自给的最快为第 {m80min} 月、最慢为第 {m80max} 月——食物生长季是共同的长周期瓶颈，但南方长生长季（广州）可早种、多熟，食物更早自给，瓶颈明显更短。",
         "cmp.narr_hope": "希望：即便从最低的 {min0}% 起步，{months} 个月也能爬到 {minfinal}%；起点更高的实例第一天就站在 {max0}% 之上，全程更不易在最脆弱的建设早期暴露。",
+        "cmp.narr_climate": "气候/地理杠杆：起点最低的 {lowstart_label}（仅 {min0}%）末月也达到 {lowstart_final}%，已逼近起点最高的 {highstart_label}（{max0}%）的 {highstart_final}%——说明'在哪生活'与'买多少装备'同等重要，且前者钱买不来。",
         "traj.climb": "若走完这座桥，第 12 月平均自给率可达 **{avg}%**，生存自由指数可达 **{fi}**（对比今天 {t0}%）。",
     },
 
@@ -432,7 +433,7 @@ CATALOG = {
 
         # ---- Build trajectory simulation (scenario trajectory) ----
         "sec.trajectory": "Build Trajectory Simulation (12 months)",
-        "traj.intro": "> Starting from today's floor, assets are built up on a realistic construction timeline; self-sufficiency climbs month by month. Energy/water have short build cycles (weeks) and count from the month built; **food must wait for a harvest season** — it starts counting ~month 6 after planting and ramps in three steps.",
+        "traj.intro": "> Starting from today's floor, assets are built up on a realistic timeline; self-sufficiency climbs month by month. Energy/water are quick (weeks) and count the month built; **food needs a season** — planting is followed by a growing period (north ~5–6 months to first harvest, south's long season ~3–4 months). Real phenology, not a model flaw.",
         "traj.today": "Today (month 0)",
         "traj.month": "Month {m}",
         "traj.th_energy": "Energy",
@@ -440,7 +441,7 @@ CATALOG = {
         "traj.th_water": "Water",
         "traj.th_avg": "Avg self-suff.",
         "traj.th_freedom": "Freedom",
-        "traj.food_lag": "⚠️ Food lag: months 1–5 are the growing season (no harvest); months 6–8 ramp in three steps (0.3/0.6/1.0); full yield from month 9.",
+        "traj.food_lag": "⚠️ Food lag: first harvest only ~**{lag}** months after planting; before that food coverage is 0. First-season yield ramps to full. Long growing seasons (south) allow earlier planting and multi-cropping, more surplus (up to 1.2×).",
         "traj.assumption": "Assumption: construction is funded by IT remote income (consistent with skill_buffer 60); timeline is conservative — replace with your real progress when deploying.",
         "cmp.title": "Multi-Instance Comparison · Build Trajectory",
         "cmp.intro": "Overlay instances of the same household but different starting points: the higher the start (equipment already owned / more capital), the higher the curve from day one; yet regardless of start, the food-growing season is the shared long-pole bottleneck.",
@@ -455,8 +456,9 @@ CATALOG = {
         "cmp.month": "Month",
         "cmp.today": "Today",
         "cmp.narr_gap": "Month-0 start: {min0}% → {max0}% (a {gap}-point gap).",
-        "cmp.narr_conv": "Regardless of start, every instance crosses 80% self-sufficiency around month {m80} — the food-growing season is the shared long pole.",
+        "cmp.narr_conv": "The fastest instance crosses 80% at month {m80min}, the slowest at month {m80max} — the food-growing season is the shared long pole, but the south's long growing season (Guangzhou) lets food self-sufficiency arrive sooner, clearly shortening the bottleneck.",
         "cmp.narr_hope": "The hope: even starting from the lowest {min0}%, you can climb to {minfinal}% within {months} months; the higher-start instance stands above {max0}% from day one and is far less exposed during the most fragile early build phase.",
+        "cmp.narr_climate": "Geography/Climate leverage: the lowest-start instance, {lowstart_label} (just {min0}%), still reaches {lowstart_final}% by month 12 — close to the highest-start instance, {highstart_label} ({max0}%), at {highstart_final}%. Where you live matters as much as what you can buy, and the former can't be purchased.",
         "traj.climb": "If you walk this bridge, by month 12 average self-sufficiency reaches **{avg}%** and the survival-freedom index reaches **{fi}** (vs {t0}% today).",
     },
 
@@ -637,7 +639,7 @@ CATALOG = {
 
         # ---- Simulación de trayectoria de construcción (escenario) ----
         "sec.trajectory": "Simulación de Trayectoria de Construcción (12 meses)",
-        "traj.intro": "> Partiendo del piso de hoy, los activos se construyen según una línea de tiempo realista; la autosuficiencia sube mes a mes. Energía/agua tienen ciclos cortos (semanas) y cuentan desde el mes construido; **la comida debe esperar una temporada de cosecha** — empieza a contar ~mes 6 tras la siembra y sube en tres pasos.",
+        "traj.intro": "> Partiendo del piso de hoy, los activos se construyen en una línea realista; la autosuficiencia sube mes a mes. Energía/agua son rápidas (semanas) y cuentan el mes construido; **la comida necesita una temporada** — tras sembrar hay periodo de crecimiento (norte ~5–6 meses a primera cosecha, sur de temporada larga ~3–4 meses). Fenología real, no fallo del modelo.",
         "traj.today": "Hoy (mes 0)",
         "traj.month": "Mes {m}",
         "traj.th_energy": "Energía",
@@ -645,7 +647,7 @@ CATALOG = {
         "traj.th_water": "Agua",
         "traj.th_avg": "Autosuf. prom.",
         "traj.th_freedom": "Libertad",
-        "traj.food_lag": "⚠️ Retraso de comida: meses 1–5 son de crecimiento (sin cosecha); meses 6–8 suben en tres pasos (0.3/0.6/1.0); cosecha plena desde mes 9.",
+        "traj.food_lag": "⚠️ Retraso de comida: primera cosecha ~**{lag}** meses tras la siembra; antes la cobertura es 0. El rendimiento de la primera temporada sube a pleno. Temporadas largas (sur) permiten siembra temprana y policultivo, más excedente (hasta 1.2×).",
         "traj.assumption": "Supuesto: la construcción la financia el ingreso remoto de IT (coherente con skill_buffer 60); línea de tiempo conservadora — reemplázala con tu progreso real al desplegar.",
         "cmp.title": "Comparación Multi-Instancia · Trayectoria de Construcción",
         "cmp.intro": "Superpone instancias del mismo hogar pero con puntos de partida distintos: cuanto más alto el inicio (equipo ya adquirido / más capital), más alta la curva desde el día uno; sin embargo, cualquiera que sea el inicio, la temporada de cultivo es el cuello de botella compartido.",
@@ -660,8 +662,9 @@ CATALOG = {
         "cmp.month": "Mes",
         "cmp.today": "Hoy",
         "cmp.narr_gap": "Inicio mes 0: {min0}% → {max0}% (brecha de {gap} puntos).",
-        "cmp.narr_conv": "Cualquiera que sea el inicio, toda instancia cruza 80% de autosuficiencia cerca del mes {m80} — la temporada de cultivo es el cuello de botella compartido.",
+        "cmp.narr_conv": "La más rápida cruza 80% en el mes {m80min}, la más lenta en el {m80max} — la temporada de cultivo es el cuello compartido, pero la temporada larga del sur (Guangzhou) permite siembra temprana y policultivo, así la autosuficiencia alimentaria llega antes y el cuello se acorta.",
         "cmp.narr_hope": "La esperanza: incluso partiendo del {min0}% más bajo, puedes subir a {minfinal}% en {months} meses; la instancia de inicio más alto se sitúa por encima del {max0}% desde el día uno y queda mucho menos expuesta durante la frágil fase inicial de construcción.",
+        "cmp.narr_climate": "Palanca geográfica/climática: la instancia de inicio más bajo, {lowstart_label} (solo {min0}%), alcanza {lowstart_final}% al mes 12 — cerca de la de inicio más alto, {highstart_label} ({max0}%), con {highstart_final}%. Dónde vives importa tanto como qué puedes comprar, y lo primero no se compra.",
         "traj.climb": "Si recorres este puente, en el mes 12 la autosuficiencia promedio alcanza **{avg}%** y el índice de libertad de supervivencia alcanza **{fi}** (vs {t0}% hoy).",
     },
 }

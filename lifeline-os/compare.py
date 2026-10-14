@@ -143,12 +143,26 @@ def render_compare_md(comp, lang="en"):
     gap = round(max0 - min0)
     minfinal = min(finals) * 100
     m80s = [m for m in (_months_to_80(r) for r in runs) if m is not None]
-    m80 = max(m80s) if m80s else None
-    m80_txt = i18n.t("cmp.never") if m80 is None else str(m80)
+    m80min = min(m80s) if m80s else None
+    m80max = max(m80s) if m80s else None
+    m80min_txt = i18n.t("cmp.never") if m80min is None else str(m80min)
+    m80max_txt = i18n.t("cmp.never") if m80max is None else str(m80max)
+
+    # 气候/地理杠杆：起点最低 vs 起点最高 实例
+    low_idx = int(min(range(len(runs)), key=lambda i: t0s[i]))
+    high_idx = int(max(range(len(runs)), key=lambda i: t0s[i]))
+    low_run, high_run = runs[low_idx], runs[high_idx]
+    low_final = finals[low_idx] * 100
+    high_final = finals[high_idx] * 100
 
     lines.append(i18n.t("cmp.narr_gap", min0=f"{min0:.0f}", max0=f"{max0:.0f}", gap=gap))
     lines.append("")
-    lines.append(i18n.t("cmp.narr_conv", m80=m80_txt))
+    lines.append(i18n.t("cmp.narr_conv", m80min=m80min_txt, m80max=m80max_txt))
+    lines.append("")
+    lines.append(i18n.t("cmp.narr_climate", lowstart_label=low_run["label"],
+                        lowstart_final=f"{low_final:.0f}", min0=f"{min0:.0f}",
+                        highstart_label=high_run["label"], max0=f"{max0:.0f}",
+                        highstart_final=f"{high_final:.0f}"))
     lines.append("")
     lines.append(i18n.t("cmp.narr_hope", min0=f"{min0:.0f}", max0=f"{max0:.0f}",
                         months=months, minfinal=f"{minfinal:.0f}"))
