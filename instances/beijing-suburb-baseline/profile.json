@@ -16,6 +16,7 @@
   "skills": ["IT"],
   "health": "良好",
   "mobility": true,
+  "relocation_willingness": false,
 
   "climate": {
     "solar_kwh_per_m2_day": 3.953,
@@ -42,7 +43,8 @@
     "skills": "自报真实掌握技能：IT。注意：模型技能词典含'远程工作/手艺/医护/电工'，不含'IT'——IT 的远程变现潜力在模型中被低估，详见 SOURCES 末条与 notes.md",
     "location": "北京郊区（自报）",
     "health": "自报：良好",
-    "mobility": "自报：能自由移动 / 撤离（灾害撤离能力，非'想搬家'）",
+    "mobility": "自报：能自由移动 / 撤离（灾害撤离能力，韧性属性；已拆出独立字段 relocation_willingness=false 表示'不想搬家'，故模型不再把本户误推为迁移型）",
+    "relocation_willingness": "自报意图：false（本示范目的就是在自家 4 亩地上建自给，而非搬去低成本地区；此字段为 false 时 relocate 策略得 0 分，semi_self 自然成为首选）",
     "solar_kwh_per_m2_day": "NASA POWER ALLSKY_SFC_SW_DWN 25 年气候年均（39.9°N, 116.4°E），单位 kWh/m²/天 = 3.953",
     "rainfall_mm_year": "NASA POWER PRECTOTCORR 年均 1.46 mm/天 × 365 ≈ 533 mm/年",
     "avg_temp_c": "NASA POWER T2M 25 年气候年均 = 11.61 °C",

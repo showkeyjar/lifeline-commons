@@ -16,6 +16,7 @@
   "skills": ["种植", "基础电工"],
   "health": "良好",
   "mobility": true,
+  "relocation_willingness": false,
 
   "climate": {
     "solar_kwh_per_m2_day": null,
@@ -39,6 +40,8 @@
     "household": "户口本 / 实际共同居住人数",
     "land_area_m2": "土地承包合同 / 实地测量 GPS",
     "capital": "自评 0-3 档（0=赤贫 3=宽裕）",
+    "mobility": "能否在灾害中自由撤离（撤离能力，韧性属性；非'想搬家'）",
+    "relocation_willingness": "是否愿意搬去低成本地区（仅此字段触发'迁移'策略；有撤离能力≠想搬家）",
     "solar_kwh_per_m2_day": "NASA POWER / 当地气象站年均",
     "rainfall_mm_year": "中国气象数据网 / NOAA / CHIRPS",
     "solar_kw": "逆变器 / 光伏组件铭牌",

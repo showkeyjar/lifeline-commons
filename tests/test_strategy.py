@@ -47,6 +47,28 @@ class TestStrategyAnalyzer(unittest.TestCase):
         dist = next(s for s in scored if s[4] == "distributed")
         self.assertEqual(dist[1], 0)  # 无地则分布式自给得 0 分
 
+    def test_mobility_is_evacuation_not_relocation(self):
+        # 关键守护：有"撤离能力"(mobility) 但无"迁移意愿"，relocate 必须得 0 分。
+        # 历史上 mobility 被误当成"想搬家"的触发器，导致有撤离韧性的人被误推去搬迁。
+        p = {"has_land": True, "capital": 1, "skills": ["IT"],
+             "location": "郊区", "household": 4, "health": "良好",
+             "mobility": True, "relocation_willingness": False}
+        scored = sa.analyze(p)
+        reloc = next(s for s in scored if s[4] == "relocate")
+        self.assertEqual(reloc[1], 0)  # 不想搬家 → 迁移策略不触发
+        # 相贴切的"半自给+基础缓冲"应成为首选（而不是被 relocate 抢走）
+        self.assertEqual(scored[0][4], "semi_self")
+
+    def test_relocation_willingness_triggers_relocate(self):
+        # 仅当显式表态"愿意迁移"(relocation_willingness=true) 才触发 relocate，
+        # 即便 mobility（撤离能力）为 False 也应能触发。
+        p = {"has_land": False, "capital": 1, "skills": ["IT"],
+             "location": "城市", "household": 1, "health": "良好",
+             "mobility": False, "relocation_willingness": True}
+        scored = sa.analyze(p)
+        reloc = next(s for s in scored if s[4] == "relocate")
+        self.assertGreater(reloc[1], 0)  # 想搬家 → 迁移策略触发
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -9,7 +9,7 @@
       "shelter.on_demand.repair"
     ],
     "community": "profile-run",
-    "generated_at": "2026-10-13T12:01:48.079068+00:00",
+    "generated_at": "2026-10-14T00:39:15.201868+00:00",
     "granularity": "task-level (humanoid-robot ready; no motion primitives)"
   },
   "actions": [

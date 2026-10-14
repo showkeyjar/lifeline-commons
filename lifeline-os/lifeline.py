@@ -103,6 +103,10 @@ def _qual_score(profile):
         s += 5
     if profile.get("has_land") or profile.get("location") in ("郊区", "乡村", "离网"):
         s += 10
+    # 撤离能力（能在灾害中自由撤离）是真实生存韧性，给予正向加成；
+    # 注意：它只贡献韧性，不触发"迁移"策略（迁移由 relocation_willingness 决定）。
+    if profile.get("mobility"):
+        s += 10
     return min(100, s)
 
 
@@ -244,6 +248,7 @@ def render_report(profile, scored, asset_scale, results):
     lines.append(f"- {i18n.t('prof.household_full')}：{profile.get('household')}")
     lines.append(f"- {i18n.t('prof.health')}：{_cat('health', profile.get('health'))}")
     lines.append(f"- {i18n.t('prof.mobility')}：{_bool(profile.get('mobility'))}")
+    lines.append(f"- {i18n.t('prof.relocation')}：{_bool(profile.get('relocation_willingness', False))}")
     lines.append(f"- {i18n.t('prof.asset_scale')}：**{asset_scale}**{i18n.t('prof.asset_scale_note')}")
     lines.append("")
 

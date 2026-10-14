@@ -10,7 +10,8 @@
 | location | 郊区 | 自报：北京郊区 | 2026-10 | 高 |
 | skills | ["IT"] | 自报真实技能 | 2026-10 | 高 |
 | health | 良好 | 自报 | 2026-10 | 高 |
-| mobility | true | 自报：可自由移动 / 撤离 | 2026-10 | 高 |
+| mobility | true | 自报：可自由移动 / 撤离（撤离能力，韧性属性） | 2026-10 | 高 |
+| relocation_willingness | false | 自报意图：在自家 4 亩地建自给，不搬家（仅此字段触发 relocate 策略） | 2026-10 | 高 |
 | solar_kwh_per_m2_day | 3.953 | **NASA POWER** ALLSKY_SFC_SW_DWN 25 年气候年均（39.9°N,116.4°E） | 数据期 2001–2025 | 中高 |
 | rainfall_mm_year | 533.0 | **NASA POWER** PRECTOTCORR 年均 1.46 mm/天 × 365 | 数据期 2001–2025 | 中高 |
 | avg_temp_c | 11.61 | **NASA POWER** T2M 25 年气候年均 | 数据期 2001–2025 | 中高 |
@@ -50,8 +51,10 @@ GET https://power.larc.nasa.gov/api/temporal/climatology/point
 - **技能词典不匹配（已修复）**：本实例自报技能为 `IT`，原策略分析器可变现词典只有
   `远程工作 / 手艺 / 医护 / 电工`，不含 `IT`，导致 `skill_buffer` 得 0 分。现已把 `IT / 远程 / Remote`
   纳入可变现词典——本户 `skill_buffer` 升至 60、`relocate` 升至 90。原则：不篡改自报数据，让模型学会认识现代技能。
-- **mobility 语义双重（仍需注意）**：本实例 `mobility=true` 指"能自由撤离（灾害韧性）"，但策略分析器把它当作
-  "是否适合低成本迁移"的触发器，可能误推"迁移"为首选策略。见 `notes.md` 的重新解读。
+- **mobility 语义双重（已修复）**：早期 `mobility=true` 既表示"撤离能力"又被当作"想搬家"的触发器，误推 relocate 为首选。
+  现已拆分为 `mobility`（撤离能力，仅贡献韧性 +10，不触发迁移）与 `relocation_willingness`（迁移意愿，仅此字段触发
+  relocate，缺省 false）。本户 `relocation_willingness=false`，relocate 正确归零，semi_self(65) 成为模型首选。
+  详见 `notes.md` §2.2 与 profile 的 `sources` 字段。
 
 ## 偏差与现场笔记
 

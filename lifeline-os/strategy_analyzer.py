@@ -27,11 +27,13 @@ import i18n  # noqa: E402  多语言：所有面向人的字符串走 t()
 # 画像字段约定（缺省按"最受限"处理，宁可不夸大）：
 #   has_land:    bool            是否有可用土地（自有/长租/承包）
 #   capital:     0-3             启动资本水平（0 无 / 1 少 / 2 中 / 3 足）
-#   skills:      list[str]       技能（种地/电工/医护/组织/远程工作/手艺）
+#   skills:      list[str]       技能（种地/电工/医护/组织/远程工作/手艺/IT）
 #   location:    str             城市/郊区/乡村/离网
 #   household:   int             家庭/社区人数
 #   health:      str             良好/受限
-#   mobility:    bool            是否可迁移到低成本地区
+#   mobility:    bool            撤离能力：是否能在灾害中自由撤离（韧性属性，非"想搬家"）
+#   relocation_willingness: bool 迁移意愿：是否愿意搬去低成本地区（仅此字段触发 relocate 策略；
+#                                   缺省 False —— 有撤离能力≠想搬家）
 
 
 def _has(p, skill):
@@ -94,8 +96,13 @@ def _score_semi_self_sufficient(p):
 
 
 def _score_relocate(p):
-    """策略4：低成本地区迁移（搬去生存成本极低的地区）。适用：可迁移者。"""
-    if not p.get("mobility"):
+    """策略4：低成本地区迁移（搬去生存成本极低的地区）。
+
+    仅当画像**显式**表态「愿意迁移」(relocation_willingness=true) 才触发。
+    `mobility`（撤离能力）不等于迁移意愿——能撤离灾害 ≠ 想搬家，
+    故不再用 mobility 触发本策略，避免把"有撤离韧性的人"误推成"该搬家的人"。
+    """
+    if not p.get("relocation_willingness", False):
         return 0
     s = 45
     if p.get("health") == "良好":
@@ -220,6 +227,7 @@ def render_report(profile, scored):
     lines.append(f"- {i18n.t('prof.household_short')}：{profile.get('household')}")
     lines.append(f"- {i18n.t('prof.health')}：{_cat('health', profile.get('health'))}")
     lines.append(f"- {i18n.t('prof.mobility')}：{_bool(profile.get('mobility'))}")
+    lines.append(f"- {i18n.t('prof.relocation')}：{_bool(profile.get('relocation_willingness', False))}")
     lines.append("")
     lines.append("## " + i18n.t("sec.strategies"))
     lines.append("")
