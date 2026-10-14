@@ -63,6 +63,7 @@
 - ✅ **实例载体已建**（2026-10-13）：`instances/` 目录 + 带溯源字段的 [`profile.template.json`](instances/_template/profile.template.json) + [`SOURCES.md`](instances/_template/SOURCES.md) 范本 + [`docs/real-instance-onboarding.md`](docs/real-instance-onboarding.md) 数据来源指南。真实实例与 `examples/`（示意 demo）明确区分——**真实实例的每个数字都必须带来源**。
 - ✅ **第一个真实实例已落地**（2026-10-13）：`instances/beijing-suburb-baseline/`——用户自家真实数据（北京郊区，4 人 / 4 亩地 / 资本档 1 / IT 技能 / 零装备），NASA POWER 真实气候，带 `SOURCES.md` + `notes.md`。仿真已资产感知，诚实显示供给地板 29%（能源/食物/水=0），仍给出 65 分半自给路 + 60 分远程收入杠杆。
 - ✅ **建设轨迹模拟已接入**（2026-10-14）：`lifeline-os/trajectory.py` 把静态地板快照扩展为 12 个月动态爬升曲线（种地→集雨→光伏按真实时序解锁，食物含收获滞后），让"希望"可被模拟——本户自给率从 29% 爬升至 86%、自由指数 54→82.5。这是项目从"工具包"转向"模拟器"的关键一步。
+- ✅ **多实例对比模拟已接入**（2026-10-14）：`lifeline-os/compare.py` + CLI `--compare` 把若干实例的 12 个月轨迹叠成一张并排曲线，并输出汇总表 + 火花线 + 逐月对比 + 诚实叙述。已落地第二个真实实例 `instances/beijing-suburb-equipped/`（同一家庭、唯一变量=资本档 2 + 已备基础装备）：起点即从 29% 跳到 **74%**、第 12 月 **94%**、早 2 个月越过 80%，与 baseline 的对比见 `compare.md`。**这是"让条件更好的人看到希望"的直接载体**。
 - 找 1 个离网/欠服务社区做伙伴（先谈，不急着上硬件）。
 - 部署最小栈（energy + food），用阶段 1 的数据驱动模块 + 真实本地数据。
 - 写一份公开的运行报告：解决了谁、覆盖多少、没解决什么（诚实记录边界）。

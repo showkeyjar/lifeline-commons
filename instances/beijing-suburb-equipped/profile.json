@@ -1,0 +1,60 @@
+{
+  "_meta": {
+    "name": "北京郊区·已装备型（条件稍好·对照）",
+    "location": "北京郊区（代表气象点 39.9°N, 116.4°E，海拔 221.6 m；NASA POWER 25 年气候平均 2001–2025）",
+    "instance_type": "郊区家庭·条件稍好对照（已备基础装备）",
+    "author": "匿名贡献者（对照实例）",
+    "collected_on": "2026-10-14",
+    "notes": "本实例是「北京郊区·极限示范（零装备起点）」的对照：同一家庭（4 人 / 4 亩地 / IT 技能 / 健康良好 / 可撤离 / 不想搬家），唯一变量是把资本档从 1 提到 2，并用这点积蓄先备好基础装备（约 5kW 光伏 + 10kWh 储能 + 一口井 + 2 吨储水 + 50㎡ 小大棚）。目的是隔离出一个干净的问题：『如果你比极限地板户多一点积蓄、提前把装备买齐，曲线会高多少、快多少？』气候仍为 NASA POWER 真实数据；其余资产均自报真实（已购）。"
+  },
+
+  "household": 4,
+  "has_land": true,
+  "land_area_m2": 2666.7,
+  "capital": 2,
+  "location": "郊区",
+  "skills": ["IT"],
+  "health": "良好",
+  "mobility": true,
+  "relocation_willingness": false,
+
+  "climate": {
+    "solar_kwh_per_m2_day": 3.953,
+    "rainfall_mm_year": 533.0,
+    "avg_temp_c": 11.61,
+    "frost_free_days": 190
+  },
+
+  "assets": {
+    "solar_kw": 5,
+    "battery_kwh": 10,
+    "wind_kw": null,
+    "water_storage_l": 2000,
+    "well": true,
+    "rainwater_harvesting": true,
+    "greenhouse_m2": 50,
+    "livestock": []
+  },
+
+  "sources": {
+    "household": "与极限示范一致：实际同住并一起吃饭的人头（自报）= 4",
+    "land_area_m2": "与极限示范一致：自报 4 亩 → 2666.7 m²（待土地承包合同 / GPS 围合复核）",
+    "capital": "自评 2 档（0 赤贫 → 3 宽裕），相对极限示范的 1 档：本户有一笔可动用积蓄，足以一次性备齐基础装备，而非边赚边建",
+    "skills": "与极限示范一致：自报真实掌握技能仅 IT（未增加种地/电工等，以隔离变量；装备可买，技能需学，故本对照仅看'装备+资本'的增量效果）",
+    "location": "北京郊区（自报，与极限示范同点）",
+    "health": "自报：良好（与极限示范一致）",
+    "mobility": "自报：能自由移动 / 撤离（灾害撤离能力，韧性属性；relocation_willingness=false 表示不想搬家，semi_self 为首选）",
+    "relocation_willingness": "自报意图：false（与极限示范一致）",
+    "solar_kwh_per_m2_day": "NASA POWER ALLSKY_SFC_SW_DWN 25 年气候年均（39.9°N, 116.4°E）= 3.953 kWh/m²/天",
+    "rainfall_mm_year": "NASA POWER PRECTOTCORR 年均 ≈ 533 mm/年（与极限示范同）",
+    "avg_temp_c": "NASA POWER T2M 25 年气候年均 = 11.61 °C（与极限示范同）",
+    "frost_free_days": "近似 190 天（与极限示范同口径，非直接测量）",
+    "solar_kw": "已购：约 5kW 户用光伏阵列（自报，估算一次性投入约 ¥15k–20k）",
+    "battery_kwh": "已购：约 10kWh 储能（自报，与光伏配套）",
+    "water_storage_l": "已购/已建：约 2 吨储水罐（自报）",
+    "well": "已有：一口浅井（北京郊区常见，自报）",
+    "rainwater_harvesting": "已建：屋面雨水收集（自报）",
+    "greenhouse_m2": "已建：约 50㎡ 小型塑料大棚（自报；作用：季节延伸——让食物更早开种、更晚结束，提升食物韧性）",
+    "livestock": "无牲畜，空列表（与极限示范一致）"
+  }
+}

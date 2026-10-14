@@ -19,6 +19,7 @@
     python lifeline-os/lifeline.py --lang en                        # 英文报告
     python lifeline-os/lifeline.py --lang es                        # 西班牙文报告
     python lifeline-os/lifeline.py --profile x.json --trajectory     # 叠加 12 个月建设轨迹模拟
+    python lifeline-os/lifeline.py --compare a.json b.json           # 多实例建设轨迹对比（并排曲线）
 """
 
 import importlib.util
@@ -33,6 +34,7 @@ if LIFELINE_OS_DIR not in sys.path:
     sys.path.insert(0, LIFELINE_OS_DIR)
 import i18n  # noqa: E402  多语言：所有面向人的字符串走 t()
 import executor  # noqa: E402  参考执行器（Stage 6，动作层）
+import strategy_analyzer  # noqa: E402  策略分析器
 
 # 复用编排器的模块自动发现、最弱日、需求单位等逻辑（目录名含连字符，无法当包名导入）
 _spec = importlib.util.spec_from_file_location(
@@ -89,6 +91,29 @@ def compute_asset_scale(profile, strategy_key):
     if strategy_key == "external_floor":
         scale = 0.3
     return round(scale, 2)
+
+
+# ---------------------------------------------------------------------------
+# 画像 → 分析三元组（main 与 compare 共用，避免重复装配）
+# ---------------------------------------------------------------------------
+def prepare(profile):
+    """把画像翻译成『策略评分 + 资产系数 + 供给上下文』三元组。
+
+    供 main（单实例报告）与 compare（多实例对比）复用，保证两者用同一套
+    分析口径；返回 (scored, asset_scale, profile_ctx)。
+    """
+    scored = strategy_analyzer.analyze(profile)
+    top = scored[0]
+    asset_scale = compute_asset_scale(profile, top[4])
+    profile_ctx = {
+        "has_land": profile.get("has_land"),
+        "capital": profile.get("capital"),
+        "location": profile.get("location"),
+        "skills": profile.get("skills", []),
+        "health": profile.get("health"),
+        "assets": profile.get("assets"),
+    }
+    return scored, asset_scale, profile_ctx
 
 
 # ---------------------------------------------------------------------------
@@ -327,6 +352,7 @@ def main(argv=None):
     lang = "en"
     do_execute = False
     do_trajectory = False
+    compare_paths = []
 
     i = 0
     while i < len(argv):
@@ -347,29 +373,45 @@ def main(argv=None):
         elif a == "--trajectory":
             do_trajectory = True
             i += 1
+        elif a == "--compare":
+            # 收集其后的 .json 画像路径，直到遇到下一个 -- 开关
+            j = i + 1
+            while j < len(argv) and not argv[j].startswith("--") and argv[j].endswith(".json"):
+                compare_paths.append(argv[j])
+                j += 1
+            i = j
         else:
             i += 1
 
     i18n.set_language(lang)
 
-    # 延迟导入，避免循环；strategy_analyzer 与 lifeline.py 同目录
-    sa_spec = importlib.util.spec_from_file_location(
-        "strategy_analyzer", os.path.join(LIFELINE_OS_DIR, "strategy_analyzer.py")
-    )
-    sa = importlib.util.module_from_spec(sa_spec)
-    sa_spec.loader.exec_module(sa)
+    # 多实例对比模式：把若干画像的轨迹叠加成一张对比图
+    if compare_paths:
+        # 让 compare / trajectory 复用本运行实例的 lifeline（避免重复加载 / i18n 状态分裂）
+        sys.modules.setdefault("lifeline", sys.modules["__main__"])
+        _cmp_spec = importlib.util.spec_from_file_location(
+            "lifeline_compare", os.path.join(LIFELINE_OS_DIR, "compare.py")
+        )
+        _cmp = importlib.util.module_from_spec(_cmp_spec)
+        sys.modules["lifeline_compare"] = _cmp
+        _cmp_spec.loader.exec_module(_cmp)
+        profiles_meta = []
+        for p in compare_paths:
+            with open(p, "r", encoding="utf-8") as f:
+                prof = json.load(f)
+            label = (prof.get("_meta") or {}).get("name") or p
+            profiles_meta.append((label, prof))
+        comp = _cmp.run_comparison(profiles_meta, months=12)
+        comp_md = _cmp.render_compare_md(comp, lang)
+        print(comp_md)
+        if out_path:
+            cmp_path = os.path.join(os.path.dirname(out_path), "compare.md")
+            with open(cmp_path, "w", encoding="utf-8") as f:
+                f.write(comp_md + "\n")
+            print(f"\n[Lifeline] {i18n.t('lf.written')}: {cmp_path}")
+        return comp_md
 
-    scored = sa.analyze(profile)
-    top = scored[0]
-    asset_scale = compute_asset_scale(profile, top[4])
-    profile_ctx = {
-        "has_land": profile.get("has_land"),
-        "capital": profile.get("capital"),
-        "location": profile.get("location"),
-        "skills": profile.get("skills", []),
-        "health": profile.get("health"),
-        "assets": profile.get("assets"),
-    }
+    scored, asset_scale, profile_ctx = prepare(profile)
     results = run_supply(profile.get("household", 1), asset_scale, context=profile_ctx)
     report = render_report(profile, scored, asset_scale, results)
 

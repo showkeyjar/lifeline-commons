@@ -31,8 +31,26 @@ instances/
 | 实例 | 地点 | 类型 | 一句话 |
 |---|---|---|---|
 | [`beijing-suburb-baseline/`](beijing-suburb-baseline/) | 北京郊区 | 郊区家庭·极限示范（零装备起点） | 4 人 / 4 亩地 / 资本档 1 / 仅 IT 技能 / 零能源·储水装备——模型诚实显示供给地板仅 29%（能源/食物/水=0），仍给出 65 分半自给路 + 60 分远程收入杠杆；叠加 12 个月建设轨迹模拟后，**自给率从 29% 爬升至 86%、自由指数 54→82.5** |
+| [`beijing-suburb-equipped/`](beijing-suburb-equipped/) | 北京郊区 | 郊区家庭·条件稍好（对照） | 同 baseline 同一家庭，**唯一变量** = 资本档 2 + 已备基础装备（5kW 光伏/10kWh 储能/井/2 吨储水/50㎡ 大棚）——起点即从 29% 跳到 **74%**，第 12 月 **94%**，早 2 个月越过 80%；与 baseline 的并排对比见 [`compare.md`](beijing-suburb-equipped/compare.md) |
 
 > 欢迎贡献你自己的真实实例（匿名或署名均可）。每个数字都要能在 `SOURCES.md` 复核。
+
+## 多实例对比（让"条件更好的人看到希望"）
+
+模拟器最有说服力的形态，是把若干实例的建设轨迹**叠成一张并排曲线**——让条件更好的人
+直接看到：仅因"提前备好基础装备"，起点就高出一个台阶。
+
+```bash
+# 把两个（或更多）实例叠在一起对比：
+python lifeline-os/lifeline.py --compare \
+    instances/beijing-suburb-baseline/profile.json \
+    instances/beijing-suburb-equipped/profile.json
+# 对比报告会单独写 compare.md（与 --out 同目录）
+```
+
+- 对比引擎见 [`lifeline-os/compare.py`](../lifeline-os/compare.py)：复用 `prepare()` / `trajectory.project_trajectory`，
+  不重复实现供给与策略逻辑（单一事实来源）。
+- 起点已带装备的实例，第 0 月即计入（不被迫从 0 归零重建）——这是对比想暴露的增量。
 
 ## 怎么跑一个真实实例
 
@@ -42,6 +60,8 @@ instances/
 python lifeline-os/lifeline.py --profile instances/<your-instance-name>/profile.json
 # 想要机器人任务清单：
 python lifeline-os/orchestrator.py --profile instances/<your-instance-name>/profile.json --execute
+# 想要 12 个月建设轨迹模拟：
+python lifeline-os/lifeline.py --profile instances/<your-instance-name>/profile.json --trajectory
 ```
 
 > 提示：`orchestrator.py` 当前 `--profile` 已支持；若你的副本没有，用
