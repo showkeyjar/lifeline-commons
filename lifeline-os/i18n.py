@@ -224,6 +224,20 @@ CATALOG = {
         "check.ok": "✅ 多语言键完整：{lang} 覆盖全部 {n} 个键。",
         "check.missing": "❌ 语言 {lang} 缺失 {m} 个键：{keys}",
         "list.supported": "支持的语言：{langs}",
+
+        # ---- 建设轨迹模拟（情景轨迹）----
+        "sec.trajectory": "建设轨迹模拟（12 个月）",
+        "traj.intro": "> 从今天的地板出发，按真实建设时序建起装备，自给率逐月爬升。能源/水建设周期短（数周），当月即计入；**食物需等一季收获**，种植后约第 6 个月才开始计入并三阶爬坡。",
+        "traj.today": "当下（第 0 月）",
+        "traj.month": "第 {m} 月",
+        "traj.th_energy": "能源",
+        "traj.th_food": "食物",
+        "traj.th_water": "水",
+        "traj.th_avg": "平均自给率",
+        "traj.th_freedom": "自由指数",
+        "traj.food_lag": "⚠️ 食物滞后：第 1–5 月为生长期（不产粮），第 6–8 月三阶爬坡（0.3/0.6/1.0），第 9 月起满产。",
+        "traj.assumption": "假设：建设由 IT 远程收入资助（契合 skill_buffer 60），时序为保守估计；落地请以你的真实进度替换。",
+        "traj.climb": "若走完这座桥，第 12 月平均自给率可达 **{avg}%**，生存自由指数可达 **{fi}**（对比今天 {t0}%）。",
     },
 
     "en": {
@@ -400,6 +414,20 @@ CATALOG = {
         "check.ok": "✅ i18n keys complete: {lang} covers all {n} keys.",
         "check.missing": "❌ Language {lang} missing {m} keys: {keys}",
         "list.supported": "Supported languages: {langs}",
+
+        # ---- Build trajectory simulation (scenario trajectory) ----
+        "sec.trajectory": "Build Trajectory Simulation (12 months)",
+        "traj.intro": "> Starting from today's floor, assets are built up on a realistic construction timeline; self-sufficiency climbs month by month. Energy/water have short build cycles (weeks) and count from the month built; **food must wait for a harvest season** — it starts counting ~month 6 after planting and ramps in three steps.",
+        "traj.today": "Today (month 0)",
+        "traj.month": "Month {m}",
+        "traj.th_energy": "Energy",
+        "traj.th_food": "Food",
+        "traj.th_water": "Water",
+        "traj.th_avg": "Avg self-suff.",
+        "traj.th_freedom": "Freedom",
+        "traj.food_lag": "⚠️ Food lag: months 1–5 are the growing season (no harvest); months 6–8 ramp in three steps (0.3/0.6/1.0); full yield from month 9.",
+        "traj.assumption": "Assumption: construction is funded by IT remote income (consistent with skill_buffer 60); timeline is conservative — replace with your real progress when deploying.",
+        "traj.climb": "If you walk this bridge, by month 12 average self-sufficiency reaches **{avg}%** and the survival-freedom index reaches **{fi}** (vs {t0}% today).",
     },
 
     "es": {
@@ -576,6 +604,20 @@ CATALOG = {
         "check.ok": "✅ Claves i18n completas: {lang} cubre las {n} claves.",
         "check.missing": "❌ Idioma {lang} omite {m} claves: {keys}",
         "list.supported": "Idiomas soportados: {langs}",
+
+        # ---- Simulación de trayectoria de construcción (escenario) ----
+        "sec.trajectory": "Simulación de Trayectoria de Construcción (12 meses)",
+        "traj.intro": "> Partiendo del piso de hoy, los activos se construyen según una línea de tiempo realista; la autosuficiencia sube mes a mes. Energía/agua tienen ciclos cortos (semanas) y cuentan desde el mes construido; **la comida debe esperar una temporada de cosecha** — empieza a contar ~mes 6 tras la siembra y sube en tres pasos.",
+        "traj.today": "Hoy (mes 0)",
+        "traj.month": "Mes {m}",
+        "traj.th_energy": "Energía",
+        "traj.th_food": "Comida",
+        "traj.th_water": "Agua",
+        "traj.th_avg": "Autosuf. prom.",
+        "traj.th_freedom": "Libertad",
+        "traj.food_lag": "⚠️ Retraso de comida: meses 1–5 son de crecimiento (sin cosecha); meses 6–8 suben en tres pasos (0.3/0.6/1.0); cosecha plena desde mes 9.",
+        "traj.assumption": "Supuesto: la construcción la financia el ingreso remoto de IT (coherente con skill_buffer 60); línea de tiempo conservadora — reemplázala con tu progreso real al desplegar.",
+        "traj.climb": "Si recorres este puente, en el mes 12 la autosuficiencia promedio alcanza **{avg}%** y el índice de libertad de supervivencia alcanza **{fi}** (vs {t0}% hoy).",
     },
 }
 

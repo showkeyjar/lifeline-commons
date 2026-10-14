@@ -61,7 +61,8 @@
 
 - ✅ **启动清单已起草**：[`docs/community-playbook.md`](docs/community-playbook.md)——把蓝图案例变成 5 步可复制剧本（组队共识 → 拿地 → 部署产能 → 接入 Lifeline OS → 持续治理），含诚实门槛（不服务赤贫无地者）。
 - ✅ **实例载体已建**（2026-10-13）：`instances/` 目录 + 带溯源字段的 [`profile.template.json`](instances/_template/profile.template.json) + [`SOURCES.md`](instances/_template/SOURCES.md) 范本 + [`docs/real-instance-onboarding.md`](docs/real-instance-onboarding.md) 数据来源指南。真实实例与 `examples/`（示意 demo）明确区分——**真实实例的每个数字都必须带来源**。
-- ✅ **第一个真实实例已落地**（2026-10-13）：`instances/beijing-suburb-baseline/`——用户自家真实数据（北京郊区，4 人 / 4 亩地 / 资本档 1 / IT 技能 / 零装备），NASA POWER 真实气候，带 `SOURCES.md` + `notes.md`。仿真已资产感知，诚实显示供给地板 27%（能源/食物/水=0），仍给出 65 分半自给路 + 90 分远程收入杠杆。
+- ✅ **第一个真实实例已落地**（2026-10-13）：`instances/beijing-suburb-baseline/`——用户自家真实数据（北京郊区，4 人 / 4 亩地 / 资本档 1 / IT 技能 / 零装备），NASA POWER 真实气候，带 `SOURCES.md` + `notes.md`。仿真已资产感知，诚实显示供给地板 29%（能源/食物/水=0），仍给出 65 分半自给路 + 60 分远程收入杠杆。
+- ✅ **建设轨迹模拟已接入**（2026-10-14）：`lifeline-os/trajectory.py` 把静态地板快照扩展为 12 个月动态爬升曲线（种地→集雨→光伏按真实时序解锁，食物含收获滞后），让"希望"可被模拟——本户自给率从 29% 爬升至 86%、自由指数 54→82.5。这是项目从"工具包"转向"模拟器"的关键一步。
 - 找 1 个离网/欠服务社区做伙伴（先谈，不急着上硬件）。
 - 部署最小栈（energy + food），用阶段 1 的数据驱动模块 + 真实本地数据。
 - 写一份公开的运行报告：解决了谁、覆盖多少、没解决什么（诚实记录边界）。

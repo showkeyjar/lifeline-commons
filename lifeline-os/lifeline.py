@@ -18,6 +18,7 @@
     python lifeline-os/lifeline.py --profile x.json --out report.md # 写文件
     python lifeline-os/lifeline.py --lang en                        # 英文报告
     python lifeline-os/lifeline.py --lang es                        # 西班牙文报告
+    python lifeline-os/lifeline.py --profile x.json --trajectory     # 叠加 12 个月建设轨迹模拟
 """
 
 import importlib.util
@@ -325,6 +326,7 @@ def main(argv=None):
     out_path = None
     lang = "en"
     do_execute = False
+    do_trajectory = False
 
     i = 0
     while i < len(argv):
@@ -341,6 +343,9 @@ def main(argv=None):
             i += 2
         elif a == "--execute":
             do_execute = True
+            i += 1
+        elif a == "--trajectory":
+            do_trajectory = True
             i += 1
         else:
             i += 1
@@ -368,11 +373,31 @@ def main(argv=None):
     results = run_supply(profile.get("household", 1), asset_scale, context=profile_ctx)
     report = render_report(profile, scored, asset_scale, results)
 
+    # 情景轨迹模拟（可选）：把静态快照扩展为 12 个月建设爬升曲线
+    traj_md = None
+    if do_trajectory:
+        # 让 trajectory 模块复用本运行实例的 lifeline（避免重复加载 / i18n 状态分裂）
+        sys.modules.setdefault("lifeline", sys.modules["__main__"])
+        _traj_spec = importlib.util.spec_from_file_location(
+            "lifeline_trajectory", os.path.join(LIFELINE_OS_DIR, "trajectory.py")
+        )
+        _traj = importlib.util.module_from_spec(_traj_spec)
+        sys.modules["lifeline_trajectory"] = _traj
+        _traj_spec.loader.exec_module(_traj)
+        traj = _traj.project_trajectory(profile, scored, asset_scale, profile_ctx, months=12)
+        traj_md = _traj.render_trajectory_md(traj, lang)
+        report = report + "\n\n" + traj_md
+
     print(report)
     if out_path:
         with open(out_path, "w", encoding="utf-8") as f:
             f.write(report + "\n")
         print(f"\n[Lifeline] {i18n.t('lf.written')}: {out_path}")
+        if traj_md:
+            traj_path = os.path.join(os.path.dirname(out_path), "trajectory.md")
+            with open(traj_path, "w", encoding="utf-8") as f:
+                f.write(traj_md + "\n")
+            print(f"[Lifeline] {i18n.t('lf.written')}: {traj_path}")
 
     # 动作层（Stage 6）：汇集任务级指令，写计划；可选驱动参考执行器
     actions = collect_action_plan(results)
